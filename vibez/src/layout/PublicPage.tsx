@@ -8,14 +8,15 @@ interface PublicLayoutProps {
 }
 
 export default function PublicLayout({ title, className, children }: PublicLayoutProps) {
+  const bgClass = "bg-gradient-to-br from-teal-400 via-blue-500 to-purple-600";
   return (
     <>
-      <Card className="flex flex-col justify-end w-full h-screen p-8 m-0 border-none rounded-none lg:p-16 lg:flex-row bg-gradient-to-br from-teal-400 via-blue-500 to-purple-600">
-        <Card className="flex flex-col w-full py-4 my-auto border-none rounded-lg shadow-xl lg:h-full lg:p-16 lg:flex-row bg-opacity-30 backdrop-blur-md bg-white/30 lg:w-1/2">
+      <Card className={`flex items-end justify-end w-full h-screen p-8 border-none rounded-none lg:p-16 ${bgClass}`}>
+        <Card className="p-4 m-auto border-none shadow-xl lg:mx-0 bg-opacity-30 backdrop-blur-md bg-white/30 lg:w-1/2">
           <CardHeader className="w-full p-0 m-0 text-2xl text-center">
             <CardTitle className="mb-4">{title}</CardTitle>
-            <CardContent className={`p-0 px-4 m-0 ${className}`}>{children}</CardContent>
           </CardHeader>
+          <CardContent className={`m-0 pb-0 ${className}`}>{children}</CardContent>
         </Card>
       </Card>
     </>
