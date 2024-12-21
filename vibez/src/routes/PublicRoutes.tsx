@@ -5,7 +5,7 @@ import { Outlet } from "react-router-dom";
 
 export default function PublicRoutes() {
   return {
-    path: "/auth/",
+    path: "/",
     element: <Outlet />,
     children: [
       { path: "", element: <Login /> },
