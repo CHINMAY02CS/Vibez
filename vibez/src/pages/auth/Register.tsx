@@ -1,12 +1,14 @@
-import PublicLayout from "@/layout/PublicPage";
-import { initialSignUpDetails, signUpSchema } from "@/schemas/Auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import FormInput from "@/components/elements/FormInput";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Form } from "@/components/ui/form";
+import PublicLayout from "@/layout/PublicPage";
+import { Button } from "@/components/ui/button";
+import FormInput from "@/components/elements/FormInput";
+import { initialSignUpDetails, signUpSchema } from "@/schemas/Auth";
+
 export default function SignUp() {
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -19,7 +21,7 @@ export default function SignUp() {
 
   return (
     <>
-      <PublicLayout title="Vibez" className="px-0 md:px-4">
+      <PublicLayout title="Vibez" className="px-0 text-sm md:px-4">
         <Form {...signUpForm}>
           <form
             onSubmit={signUpForm.handleSubmit(onSubmit)}
@@ -29,9 +31,7 @@ export default function SignUp() {
             <FormInput type="text" required name="name" form={signUpForm} label="Name" />
             <FormInput type="text" required name="username" form={signUpForm} label="Username" />
             <FormInput type="password" required name="password" form={signUpForm} label="Password" />
-            <div className="text-sm text-center">
-              By signing up, you agree to out Terms, privacy policy and cookies policy.
-            </div>
+            <div className="text-center">By signing up, you agree to out Terms, privacy policy and cookies policy.</div>
             <div className="flex items-center justify-center mt-4">
               <Button type="submit" className="w-1/2">
                 Register
@@ -39,7 +39,7 @@ export default function SignUp() {
             </div>
           </form>
         </Form>
-        <div className="text-sm text-center">
+        <div className="text-center">
           Already registered?{" "}
           <Link to="/login" className="text-purple-900">
             Login
