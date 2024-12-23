@@ -8,6 +8,7 @@ import PublicLayout from "@/layout/PublicPage";
 import { Button } from "@/components/ui/button";
 import FormInput from "@/components/elements/FormInput";
 import { initialSignUpDetails, signUpSchema } from "@/schemas/Auth";
+import { useEffect } from "react";
 
 export default function SignUp() {
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
@@ -18,6 +19,16 @@ export default function SignUp() {
   function onSubmit() {
     console.log("Registered");
   }
+
+  const fetchData = async () => {
+    const response = await fetch("http://localhost:5000/");
+    const data = await response.json();
+    console.log(data);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <>
