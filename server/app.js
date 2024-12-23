@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
-
 const PORT = 5000;
+const data = require("./data.js");
 
 app.get("/", (req, res) => {
-  res.json({ name: "Chinmay", email: "chinmay@mail.com" });
+  res.json(data);
 });
 
 app.listen(PORT, () => {
