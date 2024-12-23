@@ -12,7 +12,7 @@ export default function PublicLayout({ title, className, children }: PublicLayou
   return (
     <>
       <Card className={`flex items-end justify-end w-full h-screen p-8 border-none rounded-none lg:p-16 ${bgClass}`}>
-        <Card className="p-4 m-auto border-none shadow-xl lg:mx-0 bg-opacity-30 backdrop-blur-md bg-white/30 w-96 md:w-1/2">
+        <Card className="p-4 m-auto border-none shadow-xl lg:mx-0 bg-opacity-30 backdrop-blur-md bg-white/30 w-96 md:w-1/2 lg:max-w-152">
           <CardHeader className="w-full p-0 m-0 text-2xl text-center">
             <CardTitle className="mb-4">{title}</CardTitle>
           </CardHeader>
