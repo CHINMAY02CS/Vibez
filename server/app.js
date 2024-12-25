@@ -1,14 +1,12 @@
-const express = require("express");
-const app = express();
-const PORT = 5000;
-const data = require("./data.js");
-const cors = require("cors");
+require("dotenv").config();
+const mongoose = require("mongoose");
 
-app.use(cors());
-app.get("/", (req, res) => {
-  res.json(data);
+mongoose.connect(process.env.MONGO_DB_URL);
+
+mongoose.connection.on("connected", () => {
+  console.log("successfully connected to mongo");
 });
 
-app.listen(PORT, () => {
-  console.log("Server is running on port " + PORT);
+mongoose.connection.on("error", () => {
+  console.log("error");
 });
