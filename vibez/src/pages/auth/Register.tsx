@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,7 @@ export default function SignUp() {
     defaultValues: initialSignUpDetails,
   });
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   function onSubmit(data: SignUpFormData) {
     axios
@@ -32,13 +33,14 @@ export default function SignUp() {
           title: response.data.message,
           variant: "success",
         });
+        navigate("/login");
       })
       .catch((error) => {
         console.error("Error signing up:", error);
         console.log(error.response.data.error);
         toast({
           title: error.response.data.error,
-          variant: "destructive",
+          variant: "warning",
         });
       });
   }
