@@ -33,6 +33,8 @@ export const initialSignUpDetails = {
   password: "",
 };
 
+export type SignInFormData = z.infer<typeof signInSchema>;
+
 export const signInSchema = z.object({
   email: z.string().email({ message: "Must be a valid email address." }),
   password: z

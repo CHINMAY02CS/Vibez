@@ -37,10 +37,9 @@ export default function SignUp() {
       })
       .catch((error) => {
         console.error("Error signing up:", error);
-        console.log(error.response.data.error);
         toast({
           title: error.response.data.error,
-          variant: "warning",
+          variant: "destructive",
         });
       });
   }

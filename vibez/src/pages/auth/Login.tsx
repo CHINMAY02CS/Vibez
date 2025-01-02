@@ -1,22 +1,44 @@
 import { z } from "zod";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 
 import { Form } from "@/components/ui/form";
 import PublicLayout from "@/layout/PublicPage";
 import { Button } from "@/components/ui/button";
 import FormInput from "@/components/elements/FormInput";
-import { initialSignInDetails, signInSchema } from "@/schemas/Auth";
+import { initialSignInDetails, SignInFormData, signInSchema } from "@/schemas/Auth";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const signUpForm = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: initialSignInDetails,
   });
-
-  function onSubmit() {
-    console.log("Registered");
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  function onSubmit(data: SignInFormData) {
+    axios
+      .post("http://localhost:5000/signin", {
+        email: data.email,
+        password: data.password,
+      })
+      .then((response) => {
+        console.log(response.data);
+        toast({
+          title: response.data.message,
+          variant: "success",
+        });
+        navigate("/home");
+      })
+      .catch((error) => {
+        console.error("Error signing in:", error);
+        toast({
+          title: error.response.data.error,
+          variant: "destructive",
+        });
+      });
   }
 
   return (
