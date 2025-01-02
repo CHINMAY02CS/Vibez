@@ -11,7 +11,7 @@ router.get("/", (req, res) => {
 router.post("/signup", (req, res) => {
   const { name, userName, email, password } = req.body;
   if (!name || !email || !password || !userName) {
-    res.status(422).json({ error: "Please add all the fields" });
+    return res.status(422).json({ error: "Please add all the fields" });
   }
 
   USER.findOne({
