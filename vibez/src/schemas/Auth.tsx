@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 
+export type SignUpFormData = z.infer<typeof signUpSchema>;
+
 export const signUpSchema = z.object({
   name: z
     .string()

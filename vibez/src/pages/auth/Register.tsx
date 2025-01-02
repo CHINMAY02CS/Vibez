@@ -1,5 +1,6 @@
-import { z } from "zod";
+import axios from "axios";
 import { Link } from "react-router-dom";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -7,7 +8,7 @@ import { Form } from "@/components/ui/form";
 import PublicLayout from "@/layout/PublicPage";
 import { Button } from "@/components/ui/button";
 import FormInput from "@/components/elements/FormInput";
-import { initialSignUpDetails, signUpSchema } from "@/schemas/Auth";
+import { initialSignUpDetails, SignUpFormData, signUpSchema } from "@/schemas/Auth";
 
 export default function SignUp() {
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
@@ -15,8 +16,20 @@ export default function SignUp() {
     defaultValues: initialSignUpDetails,
   });
 
-  function onSubmit() {
-    console.log("Registered");
+  function onSubmit(data: SignUpFormData) {
+    axios
+      .post("http://localhost:5000/signup", {
+        name: data.name,
+        email: data.email,
+        userName: data.username,
+        password: data.password,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Error signing up:", error);
+      });
   }
 
   return (
