@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from "@/hooks/use-toast";
 
 import { Form } from "@/components/ui/form";
 import PublicLayout from "@/layout/PublicPage";
@@ -15,6 +16,7 @@ export default function SignUp() {
     resolver: zodResolver(signUpSchema),
     defaultValues: initialSignUpDetails,
   });
+  const { toast } = useToast();
 
   function onSubmit(data: SignUpFormData) {
     axios
@@ -26,9 +28,18 @@ export default function SignUp() {
       })
       .then((response) => {
         console.log(response.data);
+        toast({
+          title: response.data.message,
+          variant: "success",
+        });
       })
       .catch((error) => {
         console.error("Error signing up:", error);
+        console.log(error.response.data.error);
+        toast({
+          title: error.response.data.error,
+          variant: "destructive",
+        });
       });
   }
 
