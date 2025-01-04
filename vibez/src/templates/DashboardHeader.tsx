@@ -7,6 +7,7 @@ export default function DashboardHeader() {
       <div className="flex items-center gap-x-8">
         <Link to="/home">Home</Link>
         <Link to="/profile">Profile</Link>
+        <Link to="/create-post">Create Post</Link>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ export default function Dashboard() {
       <div className="fixed top-0 left-0 z-50 w-full p-4 bg-white shadow-lg h-15">
         <DashboardHeader />
       </div>
-      <div className="px-2 mt-18 md:px-0">
+      <div className="px-2 md:py-4 mt-18 md:px-0">
         <Outlet />
       </div>
     </>
