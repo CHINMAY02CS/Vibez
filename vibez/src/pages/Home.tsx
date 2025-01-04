@@ -6,7 +6,7 @@ import { Heart, Smile } from "lucide-react";
 export default function Home() {
   return (
     <div className="flex items-center justify-center">
-      <Card className="m-4 md:w-120">
+      <Card className="md:w-120">
         <CardHeader className="p-4 border-b">
           <CardTitle className="flex items-center gap-x-4">
             <img
