@@ -7,10 +7,6 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const requireLogin = require("../middlewares/requireLogin");
 
-router.get("/create-post", requireLogin, (req, res) => {
-  console.log("hello");
-});
-
 router.get("/", (req, res) => {
   res.send("Hello");
 });
