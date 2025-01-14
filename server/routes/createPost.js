@@ -17,9 +17,7 @@ router.post("/create-post", requireLogin, (req, res) => {
   });
   post
     .save()
-    .then((result) => {
-      return res.json({ post: result });
-    })
+    .then((result) => res.json({ post: result }))
     .catch((error) => console.log(error));
 });
 

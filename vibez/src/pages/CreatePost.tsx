@@ -5,16 +5,32 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function CreatePost() {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | any>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [caption, setCaption] = useState<string>("");
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
+      setPhoto(imageUrl);
+      setSelectedImage(file);
     }
-  };
+  }
 
+  function sharePost() {
+    const data = new FormData();
+    data.append("file", selectedImage);
+    data.append("upload_preset", "vibez-app");
+    data.append("clound_name", "chinmaycloud ");
+    fetch("https://api.cloudinary.com/v1_1/chinmaycloud/image/upload", {
+      method: "post",
+      body: data,
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data.url))
+      .catch((err) => console.log(err));
+  }
   return (
     <div className="flex items-center justify-center">
       <Card className="md:w-120">
@@ -29,8 +45,8 @@ export default function CreatePost() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center p-0 m-0 h-100">
-          {selectedImage ? (
-            <img className="object-contain w-auto h-full max-h-full pt-3" src={selectedImage} alt="Selected preview" />
+          {photo ? (
+            <img className="object-contain w-auto h-full max-h-full pt-3" src={photo} alt="Selected preview" />
           ) : (
             <p className="text-gray-500">Select the image you want to upload</p>
           )}
@@ -42,8 +58,12 @@ export default function CreatePost() {
         <div className="flex items-center w-full p-4 pt-0">
           <div className="flex items-center w-full mt-2 space-x-2">
             <div className="grid w-full gap-2">
-              <Textarea placeholder="Add caption here . . ." />
-              <Button>Share</Button>
+              <Textarea
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Add caption here . . ."
+              />
+              <Button onClick={sharePost}>Share</Button>
             </div>
           </div>
         </div>
