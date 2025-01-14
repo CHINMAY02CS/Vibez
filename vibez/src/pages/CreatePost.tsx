@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function CreatePost() {
   const [selectedImage, setSelectedImage] = useState<string | any>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [caption, setCaption] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState("");
 
+  const { toast } = useToast();
+  const navigate = useNavigate();
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
@@ -17,6 +23,41 @@ export default function CreatePost() {
       setSelectedImage(file);
     }
   }
+
+  useEffect(() => {
+    if (imageUrl) {
+      axios
+        .post(
+          "http://localhost:5000/create-post",
+
+          JSON.stringify({
+            body: caption,
+            pic: imageUrl,
+          }),
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt"),
+              "Content-Type": "application/json",
+            },
+          },
+        )
+
+        .then(() => {
+          toast({
+            title: "Posted successfully",
+            variant: "success",
+          });
+          navigate("/home");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast({
+            title: err.response.data.error,
+            variant: "destructive",
+          });
+        });
+    }
+  }, [imageUrl]);
 
   function sharePost() {
     const data = new FormData();
@@ -28,7 +69,7 @@ export default function CreatePost() {
       body: data,
     })
       .then((res) => res.json())
-      .then((data) => console.log(data.url))
+      .then((data) => setImageUrl(data.url))
       .catch((err) => console.log(err));
   }
   return (

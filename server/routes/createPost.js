@@ -5,14 +5,14 @@ const requireLogin = require("../middlewares/requireLogin");
 const POST = mongoose.model("POST");
 
 router.post("/create-post", requireLogin, (req, res) => {
-  const { title, body } = req.body;
-  if (!title || !body) {
+  const { body, pic } = req.body;
+  if (!body || !pic) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
   req.user;
   const post = new POST({
-    title,
     body,
+    photo: pic,
     postedBy: req.user,
   });
   post

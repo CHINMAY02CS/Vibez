@@ -25,11 +25,12 @@ export default function Login() {
         password: data.password,
       })
       .then((response) => {
-        console.log(response.data);
+        console.log(response);
         toast({
-          title: response.data.message,
+          title: "Signed in successfully",
           variant: "success",
         });
+        localStorage.setItem("jwt", response.data.token);
         navigate("/home");
       })
       .catch((error) => {
