@@ -29,7 +29,6 @@ export default function CreatePost() {
       axios
         .post(
           "http://localhost:5000/create-post",
-
           JSON.stringify({
             body: caption,
             pic: imageUrl,
@@ -41,7 +40,6 @@ export default function CreatePost() {
             },
           },
         )
-
         .then(() => {
           toast({
             title: "Posted successfully",
