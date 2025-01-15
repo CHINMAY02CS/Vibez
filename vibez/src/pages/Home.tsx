@@ -26,7 +26,6 @@ export default function Home() {
       .catch((err) => console.log(err));
   }, []);
 
-  console.log(allPosts);
   return (
     <div className="flex flex-col items-center justify-center gap-y-6">
       {allPosts.length > 0 &&
