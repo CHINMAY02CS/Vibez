@@ -1,9 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
 import { Heart, Smile } from "lucide-react";
+import { useEffect } from "react";
 
 export default function Home() {
+  useEffect(() => {
+    axios
+      .get(
+        "http://localhost:5000/get-all-posts",
+
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <div className="flex items-center justify-center">
       <Card className="md:w-120">
