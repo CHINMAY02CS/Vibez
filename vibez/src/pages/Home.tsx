@@ -32,7 +32,7 @@ export default function Home() {
       {allPosts.length > 0 &&
         allPosts.map((post, index) => {
           return (
-            <Card className="md:w-120">
+            <Card className="md:w-120" key={index}>
               <CardHeader className="p-4 border-b">
                 <CardTitle className="flex items-center gap-x-4">
                   <img
