@@ -1,4 +1,27 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+
 export default function Profile() {
+  const [myPosts, setMyPosts] = useState([]);
+  useEffect(() => {
+    axios
+      .get(
+        "http://localhost:5000/get-my-posts",
+
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((res) => {
+        console.log(res);
+        setMyPosts(res.data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
   return (
     <>
       <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
@@ -13,17 +36,10 @@ export default function Profile() {
         </div>
       </div>
       <div className="grid items-center justify-center grid-cols-2 gap-4 px-6 pt-4 mx-auto mt-16 border-t-2 md:max-w-max lg:grid-cols-4 lg:min-w-160">
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="max-w-40 max-h-40" />
+        {myPosts.length > 0 &&
+          myPosts.map((post, index) => {
+            return <img src={post?.photo} alt="" className="max-w-40 max-h-40" id={String(index)} />;
+          })}
       </div>
     </>
   );
