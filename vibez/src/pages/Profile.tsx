@@ -22,12 +22,14 @@ export default function Profile() {
       .catch((err) => console.log(err));
   }, []);
 
+  const userName = JSON.parse(localStorage.getItem("user")).name;
+
   return (
     <>
       <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
         <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="w-40 h-40 rounded-full" />
         <div className="mt-2">
-          <p className="text-3xl font-bold text-center lg:text-left">Chinmay Singh</p>
+          <p className="text-3xl font-bold text-center lg:text-left">{userName}</p>
           <div className="flex items-center w-full mt-4 gap-x-4">
             <p className="text-lg font-semibold">40 posts</p>
             <p className="text-lg font-semibold">40 followers</p>

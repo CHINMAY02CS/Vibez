@@ -31,6 +31,7 @@ export default function Login() {
           variant: "success",
         });
         localStorage.setItem("jwt", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
         navigate("/home");
       })
       .catch((error) => {

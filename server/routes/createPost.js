@@ -81,7 +81,7 @@ router.put("/like", requireLogin, async (req, res) => {
         },
       },
       { new: true }
-    );
+    ).populate("postedBy", "_id name Photo");
     res.json(updatedPost);
   } catch (err) {
     res.status(422).json({ error: err });
@@ -98,7 +98,7 @@ router.put("/unlike", requireLogin, async (req, res) => {
         },
       },
       { new: true }
-    );
+    ).populate("postedBy", "_id name Photo");
     res.json(updatedPost);
   } catch (err) {
     res.status(422).json({ error: err });

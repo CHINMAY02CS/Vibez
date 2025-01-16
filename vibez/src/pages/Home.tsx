@@ -26,40 +26,77 @@ export default function Home() {
       .catch((err) => console.log(err));
   }, []);
 
-  function likePost(id: string) {
-    axios
-      .put(
+  async function likePost(id: string) {
+    try {
+      const token = localStorage.getItem("jwt");
+      if (!token) {
+        console.error("Authorization token not found!");
+        return;
+      }
+
+      const response = await axios.put(
         "http://localhost:5000/like",
-        JSON.stringify({
-          postId: id,
-        }),
+        { postId: id },
         {
           headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         },
-      )
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
+      );
+
+      const updatedPost = response.data;
+
+      const newData = allPosts.map((post) => {
+        if (post._id === updatedPost._id) {
+          return updatedPost;
+        }
+        return post;
+      });
+
+      setAllPosts(newData);
+      console.log(newData, "like newData");
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
   }
 
-  function unlikePost(id: string) {
-    axios
-      .put(
+  async function unlikePost(id: string) {
+    try {
+      const token = localStorage.getItem("jwt");
+      if (!token) {
+        console.error("Authorization token not found!");
+        return;
+      }
+
+      const response = await axios.put(
         "http://localhost:5000/unlike",
-        JSON.stringify({
-          postId: id,
-        }),
+        { postId: id },
         {
           headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         },
-      )
-      .then((res) => console.log(res));
+      );
+
+      const updatedPost = response.data;
+
+      const newData = allPosts.map((post) => {
+        if (post._id === updatedPost._id) {
+          return updatedPost;
+        }
+        return post;
+      });
+
+      setAllPosts(newData);
+      console.log(newData, "like newData");
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
   }
+
+  const userId = JSON.parse(localStorage.getItem("user"))._id;
 
   return (
     <div className="flex flex-col items-center justify-center gap-y-6">
@@ -83,11 +120,14 @@ export default function Home() {
               </CardContent>
               <CardFooter className="flex-col items-start p-4 gap-y-2">
                 <div className="flex gap-x-2">
-                  <Heart className="w-6 h-6 font-normal cursor-pointer" onClick={() => likePost(post._id)} />
-                  <Heart
-                    className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
-                    onClick={() => unlikePost(post._id)}
-                  />
+                  {post.likes.includes(userId) ? (
+                    <Heart
+                      className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
+                      onClick={() => unlikePost(post._id)}
+                    />
+                  ) : (
+                    <Heart className="w-6 h-6 font-normal cursor-pointer" onClick={() => likePost(post._id)} />
+                  )}
                 </div>
                 <p className="text-sm">1 Like</p>
                 {post?.body}

@@ -4,10 +4,8 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -27,6 +25,7 @@ export default function DashboardHeader() {
 
   function logout() {
     localStorage.removeItem("jwt");
+    localStorage.removeItem("user");
     navigate("/login");
   }
   return (
