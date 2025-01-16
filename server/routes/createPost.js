@@ -35,42 +35,6 @@ router.post("/create-post", requireLogin, (req, res) => {
     .catch((error) => console.log(error));
 });
 
-// router.put("/like", requireLogin, (req, res) => {
-//   POST.findByIdAndUpdate(
-//     req.body.postId,
-//     {
-//       $push: {
-//         likes: req.user._id,
-//       },
-//     },
-//     { new: true }
-//   ).exec((err, res) => {
-//     if (err) {
-//       return res.status(422).json({ error: err });
-//     } else {
-//       return res.json(res);
-//     }
-//   });
-// });
-
-// router.put("/unlike", requireLogin, (req, res) => {
-//   POST.findByIdAndUpdate(
-//     req.body.postId,
-//     {
-//       $pull: {
-//         likes: req.user._id,
-//       },
-//     },
-//     { new: true }
-//   ).exec((err, res) => {
-//     if (err) {
-//       return res.status(422).json({ error: err });
-//     } else {
-//       return res.json(res);
-//     }
-//   });
-// });
-
 router.put("/like", requireLogin, async (req, res) => {
   try {
     const updatedPost = await POST.findByIdAndUpdate(
