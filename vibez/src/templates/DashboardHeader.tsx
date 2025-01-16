@@ -20,7 +20,6 @@ export default function DashboardHeader() {
     if (!token) {
       navigate("/login");
     }
-    console.log(token);
   }, [location.pathname]);
 
   function logout() {

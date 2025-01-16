@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Post } from "@/Interfaces";
 import axios from "axios";
 import { Heart, Smile } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [allPosts, setAllPosts] = useState([]);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
   useEffect(() => {
     axios
       .get(
@@ -20,7 +21,6 @@ export default function Home() {
         },
       )
       .then((res) => {
-        console.log(res);
         setAllPosts(res.data);
       })
       .catch((err) => console.log(err));
@@ -55,7 +55,6 @@ export default function Home() {
       });
 
       setAllPosts(newData);
-      console.log(newData, "like newData");
     } catch (error) {
       console.error("Error liking post:", error);
     }
@@ -90,13 +89,12 @@ export default function Home() {
       });
 
       setAllPosts(newData);
-      console.log(newData, "like newData");
     } catch (error) {
       console.error("Error liking post:", error);
     }
   }
 
-  const userId = JSON.parse(localStorage.getItem("user"))._id;
+  const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
 
   return (
     <div className="flex flex-col items-center justify-center gap-y-6">
@@ -113,7 +111,6 @@ export default function Home() {
                   />
                   <p className="cursor-pointer">{post?.postedBy?.name}</p>
                 </CardTitle>
-                {/* <CardDescription>Later add location here</CardDescription> */}
               </CardHeader>
               <CardContent className="p-0 m-0 h-80">
                 <img className="h-80 w-120" src={post?.photo} />
