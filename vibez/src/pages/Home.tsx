@@ -26,6 +26,41 @@ export default function Home() {
       .catch((err) => console.log(err));
   }, []);
 
+  function likePost(id: string) {
+    axios
+      .put(
+        "http://localhost:5000/like",
+        JSON.stringify({
+          postId: id,
+        }),
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
+  }
+
+  function unlikePost(id: string) {
+    axios
+      .put(
+        "http://localhost:5000/unlike",
+        JSON.stringify({
+          postId: id,
+        }),
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((res) => console.log(res));
+  }
+
   return (
     <div className="flex flex-col items-center justify-center gap-y-6">
       {allPosts.length > 0 &&
@@ -48,7 +83,11 @@ export default function Home() {
               </CardContent>
               <CardFooter className="flex-col items-start p-4 gap-y-2">
                 <div className="flex gap-x-2">
-                  <Heart className="w-6 h-6 font-normal cursor-pointer" />
+                  <Heart className="w-6 h-6 font-normal cursor-pointer" onClick={() => likePost(post._id)} />
+                  <Heart
+                    className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
+                    onClick={() => unlikePost(post._id)}
+                  />
                 </div>
                 <p className="text-sm">1 Like</p>
                 {post?.body}

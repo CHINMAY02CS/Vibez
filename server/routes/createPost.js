@@ -17,6 +17,7 @@ router.get("/get-my-posts", requireLogin, (req, res) => {
     .then((posts) => res.json(posts))
     .catch((err) => console.log(err));
 });
+
 router.post("/create-post", requireLogin, (req, res) => {
   const { body, pic } = req.body;
   if (!body || !pic) {
@@ -32,6 +33,76 @@ router.post("/create-post", requireLogin, (req, res) => {
     .save()
     .then((result) => res.json({ post: result }))
     .catch((error) => console.log(error));
+});
+
+// router.put("/like", requireLogin, (req, res) => {
+//   POST.findByIdAndUpdate(
+//     req.body.postId,
+//     {
+//       $push: {
+//         likes: req.user._id,
+//       },
+//     },
+//     { new: true }
+//   ).exec((err, res) => {
+//     if (err) {
+//       return res.status(422).json({ error: err });
+//     } else {
+//       return res.json(res);
+//     }
+//   });
+// });
+
+// router.put("/unlike", requireLogin, (req, res) => {
+//   POST.findByIdAndUpdate(
+//     req.body.postId,
+//     {
+//       $pull: {
+//         likes: req.user._id,
+//       },
+//     },
+//     { new: true }
+//   ).exec((err, res) => {
+//     if (err) {
+//       return res.status(422).json({ error: err });
+//     } else {
+//       return res.json(res);
+//     }
+//   });
+// });
+
+router.put("/like", requireLogin, async (req, res) => {
+  try {
+    const updatedPost = await POST.findByIdAndUpdate(
+      req.body.postId,
+      {
+        $push: {
+          likes: req.user._id,
+        },
+      },
+      { new: true }
+    );
+    res.json(updatedPost);
+  } catch (err) {
+    res.status(422).json({ error: err });
+  }
+});
+
+router.put("/unlike", requireLogin, async (req, res) => {
+  try {
+    const updatedPost = await POST.findByIdAndUpdate(
+      req.body.postId,
+      {
+        $pull: {
+          likes: req.user._id,
+        },
+      },
+      { new: true }
+    );
+    res.json(updatedPost);
+  } catch (err) {
+    res.status(422).json({ error: err });
+  }
 });
 
 module.exports = router;
