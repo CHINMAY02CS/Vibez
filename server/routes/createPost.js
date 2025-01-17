@@ -15,6 +15,7 @@ router.get("/get-all-posts", requireLogin, (req, res) => {
 router.get("/get-my-posts", requireLogin, (req, res) => {
   POST.find({ postedBy: req.user._id })
     .populate("postedBy", "_id name")
+    .populate("comments.postedBy", "_id name photo")
     .then((posts) => res.json(posts))
     .catch((err) => console.log(err));
 });
