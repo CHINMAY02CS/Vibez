@@ -12,10 +12,12 @@ import {
   AlertDialogFooter,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
+  const { toast } = useToast();
 
   useEffect(() => {
     axios
@@ -133,7 +135,10 @@ export default function Home() {
         }
         return post;
       });
-
+      toast({
+        title: "Comment added successfully",
+        variant: "success",
+      });
       setAllPosts(newData);
       setComments((prev) => ({ ...prev, [id]: "" }));
     } catch (error) {
