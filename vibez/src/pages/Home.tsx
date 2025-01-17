@@ -116,7 +116,7 @@ export default function Home() {
                 <img className="h-80 w-120" src={post?.photo} />
               </CardContent>
               <CardFooter className="flex-col items-start p-4 gap-y-2">
-                <div className="flex gap-x-2">
+                <div className="flex gap-x-1">
                   {post.likes.includes(userId) ? (
                     <Heart
                       className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
@@ -125,8 +125,8 @@ export default function Home() {
                   ) : (
                     <Heart className="w-6 h-6 font-normal cursor-pointer" onClick={() => likePost(post._id)} />
                   )}
+                  <p className="mt-1.5 text-xs">{post?.likes ? post.likes.length : "0"} Likes</p>
                 </div>
-                <p className="text-sm">1 Like</p>
                 {post?.body}
               </CardFooter>
               <div className="flex items-center w-full p-4 pt-0">
