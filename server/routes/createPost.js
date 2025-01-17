@@ -36,6 +36,29 @@ router.post("/create-post", requireLogin, (req, res) => {
     .catch((error) => console.log(error));
 });
 
+router.delete("/delete-post/:postId", requireLogin, async (req, res) => {
+  try {
+    const post = await POST.findOne({ _id: req.params.postId }).populate(
+      "postedBy",
+      "_id"
+    );
+    if (!post) {
+      return res.status(422).json({ error: "Post not found" });
+    }
+    if (post.postedBy._id.toString() === req.user._id.toString()) {
+      await POST.deleteOne({ _id: req.params.postId });
+      return res.json({ message: "Successfully deleted" });
+    } else {
+      return res
+        .status(403)
+        .json({ error: "You are not authorized to delete this post" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "An error occurred" });
+  }
+});
+
 router.put("/like", requireLogin, async (req, res) => {
   try {
     const updatedPost = await POST.findByIdAndUpdate(
