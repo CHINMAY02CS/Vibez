@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
+  const [comments, setComments] = useState<{ [key: string]: string }>({});
+
   useEffect(() => {
     axios
       .get(
@@ -94,6 +96,44 @@ export default function Home() {
     }
   }
 
+  async function addComment(text: string, id: string) {
+    try {
+      const token = localStorage.getItem("jwt");
+      if (!token) {
+        console.error("Authorization token not found!");
+        return;
+      }
+
+      const response = await axios.put(
+        "http://localhost:5000/comment",
+        {
+          text: text,
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const updatedPost = response.data;
+
+      const newData = allPosts.map((post) => {
+        if (post._id === updatedPost._id) {
+          return updatedPost;
+        }
+        return post;
+      });
+
+      setAllPosts(newData);
+      setComments((prev) => ({ ...prev, [id]: "" }));
+    } catch (error) {
+      console.error("Error add comment:", error);
+    }
+  }
+
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
 
   return (
@@ -132,10 +172,21 @@ export default function Home() {
               <div className="flex items-center w-full p-4 pt-0">
                 <Smile className="w-6 h-6 mr-2 cursor-pointer" />
                 <div className="flex items-center w-full space-x-2">
-                  <Input type="email" placeholder="Add your comment . . ." className="border shadow-none" />
-                  <Button type="submit" className="">
+                  <Input
+                    type="text"
+                    placeholder="Add your comment . . ."
+                    value={comments[post._id] || ""}
+                    className="border shadow-none"
+                    onChange={(e) =>
+                      setComments((prev) => ({
+                        ...prev,
+                        [post._id]: e.target.value,
+                      }))
+                    }
+                  />
+                  <Button type="submit" onClick={() => addComment(comments[post._id], post._id)}>
                     Comment
-                  </Button>
+                  </Button>{" "}
                 </div>
               </div>
             </Card>
