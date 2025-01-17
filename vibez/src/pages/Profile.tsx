@@ -190,9 +190,9 @@ export default function Profile() {
                         </div>
                         <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
                           {post.comments.length > 0 &&
-                            post.comments.map((comment) => {
+                            post.comments.map((comment, index) => {
                               return (
-                                <div className="flex items-center p-2 gap-x-4">
+                                <div className="flex items-center p-2 gap-x-4" id={String(index)}>
                                   <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
                                   <div>
                                     <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
