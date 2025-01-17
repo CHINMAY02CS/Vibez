@@ -11,4 +11,5 @@ export interface Post {
   createdAt: string;
   updatedAt: string;
   likes: string[];
+  comments: [];
 }

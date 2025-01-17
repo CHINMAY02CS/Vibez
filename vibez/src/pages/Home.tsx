@@ -3,8 +3,15 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Post } from "@/Interfaces";
 import axios from "axios";
-import { Heart, Smile } from "lucide-react";
+import { Heart, Smile, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function Home() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
@@ -168,6 +175,87 @@ export default function Home() {
                   <p className="mt-1.5 text-xs">{post?.likes ? post.likes.length : "0"} Likes</p>
                 </div>
                 {post?.body}
+                <AlertDialog>
+                  <AlertDialogTrigger className="text-xs text-gray-500 hover:underline">
+                    {post.comments?.length > 0 ? `View all ${post.comments.length} comments` : null}
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="px-3 py-0 rounded-lg max-h-176 lg:max-w-240 lg:max-h-none">
+                    <div className="flex items-end justify-end">
+                      <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max">
+                        <X className="w-4 h-4" />{" "}
+                      </AlertDialogCancel>
+                    </div>
+                    <div className="grid items-start lg:grid-cols-2 gap-x-4">
+                      <img className="h-80 w-120" src={post?.photo} />
+                      {/* right card */}
+                      <div>
+                        <div className="flex items-center p-2 border border-gray-200 rounded-sm gap-x-4">
+                          <img
+                            src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
+                            alt=""
+                            className="w-8 h-8 rounded-full cursor-pointer"
+                          />
+                          <p className="cursor-pointer">{post?.postedBy?.name}</p>
+                        </div>
+                        <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
+                          {post.comments.length > 0 &&
+                            post.comments.map((comment) => {
+                              return (
+                                <div className="flex items-center p-2 gap-x-4">
+                                  <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+                                  <div>
+                                    <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
+                                    <p className="text-xs cursor-pointer">{comment.comment}</p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                        </div>
+                        <div className="flex items-center w-full p-3 px-1 gap-x-4">
+                          <div className="flex items-center gap-x-1">
+                            {post.likes.includes(userId) ? (
+                              <Heart
+                                className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
+                                onClick={() => unlikePost(post._id)}
+                              />
+                            ) : (
+                              <Heart
+                                className="w-6 h-6 font-normal cursor-pointer"
+                                onClick={() => likePost(post._id)}
+                              />
+                            )}
+                            <p className="mt-1.5 text-xs">{post?.likes ? post.likes.length : "0"}</p>
+                          </div>
+                          <div className="flex items-center w-full">
+                            <Smile className="w-4 h-4 mr-2 cursor-pointer" />
+                            <div className="flex items-center w-full space-x-2">
+                              <Input
+                                type="text"
+                                placeholder="Add your comment . . ."
+                                value={comments[post._id] || ""}
+                                className="h-8 border shadow-none placeholder:text-xs"
+                                onChange={(e) =>
+                                  setComments((prev) => ({
+                                    ...prev,
+                                    [post._id]: e.target.value,
+                                  }))
+                                }
+                              />
+                              <Button
+                                type="submit"
+                                onClick={() => addComment(comments[post._id], post._id)}
+                                className="h-8"
+                              >
+                                Add
+                              </Button>
+                            </div>{" "}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <AlertDialogFooter></AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardFooter>
               <div className="flex items-center w-full p-4 pt-0">
                 <Smile className="w-6 h-6 mr-2 cursor-pointer" />
