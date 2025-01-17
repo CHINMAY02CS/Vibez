@@ -31,7 +31,6 @@ export default function Profile() {
         },
       )
       .then((res) => {
-        console.log(res, "fetch");
         setMyPosts(res.data);
       })
       .catch((err) => console.log(err));
@@ -149,7 +148,6 @@ export default function Profile() {
   const userName = JSON.parse(localStorage.getItem("user") ?? "").name;
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
 
-  console.log(myPosts, "myposts");
   return (
     <>
       <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
@@ -193,7 +191,6 @@ export default function Profile() {
                         <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
                           {post.comments.length > 0 &&
                             post.comments.map((comment) => {
-                              console.log(comment, "comment mapped");
                               return (
                                 <div className="flex items-center p-2 gap-x-4">
                                   <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
