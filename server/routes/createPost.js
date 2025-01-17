@@ -69,4 +69,27 @@ router.put("/unlike", requireLogin, async (req, res) => {
   }
 });
 
+router.put("/comment", requireLogin, async (req, res) => {
+  try {
+    const comment = {
+      comment: req.body.text,
+      postedBy: req.user._id,
+    };
+    const updatedPost = await POST.findByIdAndUpdate(
+      req.body.postId,
+      { $push: { comments: comment } },
+      { new: true }
+    )
+      .populate("comments.postedBy", "_id name")
+      .populate("postedBy", "_id name Photo");
+    if (!updatedPost) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    res.json(updatedPost);
+  } catch (err) {
+    console.error(err);
+    res.status(422).json({ error: "Unable to add comment" });
+  }
+});
+
 module.exports = router;
