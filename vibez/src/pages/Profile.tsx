@@ -7,7 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Heart, Smile, X } from "lucide-react";
+import { Heart, Trash, Smile, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +15,7 @@ import { Post } from "@/Interfaces";
 
 export default function Profile() {
   const [myPosts, setMyPosts] = useState([]);
+  const [alertOpen, setAlertOpen] = useState(false);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
 
@@ -145,6 +146,38 @@ export default function Profile() {
     }
   }
 
+  async function deletePost(postId: string) {
+    try {
+      const token = localStorage.getItem("jwt");
+      if (!token) {
+        console.error("Authorization token not found!");
+        return;
+      }
+
+      const response = await axios.delete(`http://localhost:5000/delete-post/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const updatedPost = response.data;
+
+      const newData = myPosts.map((post) => {
+        if (post._id === updatedPost.data._id) {
+          return updatedPost;
+        }
+        return post;
+      });
+
+      setMyPosts(newData);
+      setAlertOpen(false);
+      console.log(updatedPost, "this is deleted post");
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  }
+
   const userName = JSON.parse(localStorage.getItem("user") ?? "").name;
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
 
@@ -166,7 +199,7 @@ export default function Profile() {
           myPosts.map((post: Post, index) => {
             return (
               <>
-                <AlertDialog>
+                <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
                   <AlertDialogTrigger className="text-xs text-gray-500 hover:underline">
                     <img src={post?.photo} alt="" className="max-w-40 max-h-40" id={String(index)} />
                   </AlertDialogTrigger>
@@ -180,17 +213,20 @@ export default function Profile() {
                       <img className="h-80 w-120" src={post?.photo} />
                       {/* right card */}
                       <div>
-                        <div className="flex items-center p-2 border border-gray-200 rounded-sm gap-x-4">
-                          <img
-                            src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
-                            alt=""
-                            className="w-8 h-8 rounded-full cursor-pointer"
-                          />
-                          <p className="cursor-pointer">{post?.postedBy?.name}</p>
+                        <div className="flex items-center justify-between p-2 mt-2 border border-gray-200 rounded-sm lg:mt-0">
+                          <div className="flex items-center gap-x-4">
+                            <img
+                              src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
+                              alt=""
+                              className="w-8 h-8 rounded-full cursor-pointer"
+                            />
+                            <p className="cursor-pointer">{post?.postedBy?.name}</p>
+                          </div>
+                          <Trash onClick={() => deletePost(post._id)} />
                         </div>
-                        <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
-                          {post.comments.length > 0 &&
-                            post.comments.map((comment, index) => {
+                        {post?.comments?.length > 0 && (
+                          <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
+                            {post.comments.map((comment, index) => {
                               return (
                                 <div className="flex items-center p-2 gap-x-4" id={String(index)}>
                                   <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
@@ -201,10 +237,11 @@ export default function Profile() {
                                 </div>
                               );
                             })}
-                        </div>
+                          </div>
+                        )}
                         <div className="flex items-center w-full p-3 px-1 gap-x-4">
                           <div className="flex items-center gap-x-1">
-                            {post.likes.includes(userId) ? (
+                            {post?.likes?.includes(userId) ? (
                               <Heart
                                 className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
                                 onClick={() => unlikePost(post._id)}

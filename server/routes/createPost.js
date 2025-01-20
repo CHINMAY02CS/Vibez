@@ -48,7 +48,7 @@ router.delete("/delete-post/:postId", requireLogin, async (req, res) => {
     }
     if (post.postedBy._id.toString() === req.user._id.toString()) {
       await POST.deleteOne({ _id: req.params.postId });
-      return res.json({ message: "Successfully deleted" });
+      return res.json({ data: post, message: "Successfully deleted" });
     } else {
       return res
         .status(403)
