@@ -70,7 +70,10 @@ router.put("/like", requireLogin, async (req, res) => {
         },
       },
       { new: true }
-    ).populate("postedBy", "_id name photo");
+    )
+      .populate("postedBy", "_id name")
+      .populate("comments.postedBy", "_id name photo");
+
     res.json(updatedPost);
   } catch (err) {
     res.status(422).json({ error: err });
@@ -87,7 +90,10 @@ router.put("/unlike", requireLogin, async (req, res) => {
         },
       },
       { new: true }
-    ).populate("postedBy", "_id name photo");
+    )
+      .populate("postedBy", "_id name photo")
+      .populate("comments.postedBy", "_id name photo");
+
     res.json(updatedPost);
   } catch (err) {
     res.status(422).json({ error: err });

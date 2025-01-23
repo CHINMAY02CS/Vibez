@@ -12,10 +12,10 @@ router.get("/user/:id", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const posts = await POST.find({ postedBy: req.params.id }).populate(
-      "postedBy",
-      "_id"
-    );
+    const posts = await POST.find({ postedBy: req.params.id })
+      .populate("postedBy", "_id name")
+      .populate("comments.postedBy", "_id name photo");
+
     res.status(200).json({ user, posts });
   } catch (err) {
     console.error(err);
