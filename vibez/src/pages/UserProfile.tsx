@@ -47,7 +47,7 @@ export default function UserProfile() {
       console.log(response.data);
       setIsFollow(true);
     } catch (error) {
-      console.error(error?.response?.data?.error);
+      console.error(error, "Please try again");
     }
   };
 
@@ -67,7 +67,7 @@ export default function UserProfile() {
       console.log(response.data);
       setIsFollow(false);
     } catch (error) {
-      console.error(error?.response?.data?.error);
+      console.error(error, "Please try again");
     }
   };
 
