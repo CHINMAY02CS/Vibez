@@ -34,6 +34,7 @@ export default function DashboardHeader() {
         <Link to="/home">Home</Link>
         <Link to="/profile">Profile</Link>
         <Link to="/create-post">Create Post</Link>
+        <Link to="/my-following-posts">Following Posts</Link>
 
         <AlertDialog>
           <AlertDialogTrigger>

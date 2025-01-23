@@ -117,4 +117,29 @@ router.put("/comment", requireLogin, async (req, res) => {
   }
 });
 
+router.get("/my-following-post", requireLogin, async (req, res) => {
+  try {
+    if (!req.user?.following || req.user.following.length === 0) {
+      return res.status(400).json({ error: "No following users found" });
+    }
+
+    const posts = await POST.find({ postedBy: { $in: req.user.following } })
+      .populate("postedBy", "_id name")
+      .populate("comments.postedBy", "_id name");
+
+    if (!posts.length) {
+      return res
+        .status(404)
+        .json({ message: "No posts found from following users" });
+    }
+
+    return res.status(200).json(posts);
+  } catch (err) {
+    console.error("Error fetching following posts:", err.message);
+    return res
+      .status(500)
+      .json({ error: "An error occurred while fetching posts" });
+  }
+});
+
 module.exports = router;
