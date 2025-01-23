@@ -12,19 +12,23 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Post } from "@/Interfaces";
+import { CommentDetails, initialProfileDetails, ProfileDetails } from "@/interfaces/Profile";
 
 export default function Profile() {
-  const [myPosts, setMyPosts] = useState([]);
+  const [myPosts, setMyPosts] = useState<Post[]>([]);
   const [alertOpen, setAlertOpen] = useState(false);
-  const [profileDetails, setProfileDetails] = useState({});
+  const [profileDetails, setProfileDetails] = useState<ProfileDetails>(initialProfileDetails);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
+  const user = localStorage.getItem("user");
 
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/user/${JSON.parse(localStorage.getItem("user"))?._id}`);
-        setProfileDetails(response.data?.user);
+        if (user) {
+          const response = await axios.get(`http://localhost:5000/user/${JSON.parse(user)?._id}`);
+          setProfileDetails(response.data?.user);
+        }
       } catch (err) {
         console.error(err);
       }
@@ -32,7 +36,6 @@ export default function Profile() {
 
     fetchUserPosts();
   }, []);
-  console.log(profileDetails, "profileDetails");
   useEffect(() => {
     axios
       .get(
@@ -72,7 +75,7 @@ export default function Profile() {
 
       const updatedPost = response.data;
 
-      const newData = myPosts.map((post) => {
+      const newData = myPosts.map((post: Post) => {
         if (post._id === updatedPost._id) {
           return updatedPost;
         }
@@ -106,7 +109,7 @@ export default function Profile() {
 
       const updatedPost = response.data;
 
-      const newData = myPosts.map((post) => {
+      const newData = myPosts.map((post: Post) => {
         if (post._id === updatedPost._id) {
           return updatedPost;
         }
@@ -239,7 +242,7 @@ export default function Profile() {
                         </div>
                         {post?.comments?.length > 0 && (
                           <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
-                            {post.comments.map((comment, index) => {
+                            {post.comments.map((comment: CommentDetails, index) => {
                               return (
                                 <div className="flex items-center p-2 gap-x-4" id={String(index)} key={index}>
                                   <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />

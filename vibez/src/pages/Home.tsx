@@ -149,7 +149,6 @@ export default function Home() {
   }
 
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
-  console.log(allPosts, "allPosts");
   return (
     <div className="flex flex-col items-center justify-center gap-y-6">
       {allPosts.length > 0 &&
@@ -209,9 +208,9 @@ export default function Home() {
                         </div>
                         <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
                           {post.comments.length > 0 &&
-                            post.comments.map((comment) => {
+                            post.comments.map((comment, index) => {
                               return (
-                                <div className="flex items-center p-2 gap-x-4">
+                                <div className="flex items-center p-2 gap-x-4" key={index}>
                                   <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
                                   <div>
                                     <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
