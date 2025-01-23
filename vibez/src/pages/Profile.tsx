@@ -172,7 +172,6 @@ export default function Profile() {
 
       setMyPosts(newData);
       setAlertOpen(false);
-      console.log(updatedPost, "this is deleted post");
     } catch (error) {
       console.error("Error liking post:", error);
     }
@@ -188,7 +187,7 @@ export default function Profile() {
         <div className="mt-2">
           <p className="text-3xl font-bold text-center lg:text-left">{userName}</p>
           <div className="flex items-center w-full mt-4 gap-x-4">
-            <p className="text-lg font-semibold">40 posts</p>
+            <p className="text-lg font-semibold">{myPosts.length} posts</p>
             <p className="text-lg font-semibold">40 followers</p>
             <p className="text-lg font-semibold">40 following</p>
           </div>
@@ -198,8 +197,8 @@ export default function Profile() {
         {myPosts.length > 0 &&
           myPosts.map((post: Post, index) => {
             return (
-              <>
-                <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+              <div key={index}>
+                <AlertDialog open={alertOpen} onOpenChange={setAlertOpen} key={index}>
                   <AlertDialogTrigger className="text-xs text-gray-500 hover:underline">
                     <img src={post?.photo} alt="" className="max-w-40 max-h-40" id={String(index)} />
                   </AlertDialogTrigger>
@@ -228,7 +227,7 @@ export default function Profile() {
                           <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
                             {post.comments.map((comment, index) => {
                               return (
-                                <div className="flex items-center p-2 gap-x-4" id={String(index)}>
+                                <div className="flex items-center p-2 gap-x-4" id={String(index)} key={index}>
                                   <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
                                   <div>
                                     <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
@@ -284,7 +283,7 @@ export default function Profile() {
                     <AlertDialogFooter></AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </>
+              </div>
             );
           })}
       </div>

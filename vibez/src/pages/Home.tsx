@@ -13,11 +13,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -147,7 +149,7 @@ export default function Home() {
   }
 
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
-
+  console.log(allPosts, "allPosts");
   return (
     <div className="flex flex-col items-center justify-center gap-y-6">
       {allPosts.length > 0 &&
@@ -160,8 +162,11 @@ export default function Home() {
                     src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
                     alt=""
                     className="w-8 h-8 rounded-full cursor-pointer"
+                    onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
                   />
-                  <p className="cursor-pointer">{post?.postedBy?.name}</p>
+                  <p className="cursor-pointer" onClick={() => navigate(`/user/${post?.postedBy?._id}`)}>
+                    {post?.postedBy?.name}
+                  </p>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0 m-0 h-80">
