@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { CommentDetails } from "@/interfaces/Profile";
 
 export default function Home() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
@@ -208,7 +209,7 @@ export default function Home() {
                         </div>
                         <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
                           {post.comments.length > 0 &&
-                            post.comments.map((comment, index) => {
+                            post.comments.map((comment: CommentDetails, index) => {
                               return (
                                 <div className="flex items-center p-2 gap-x-4" key={index}>
                                   <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
