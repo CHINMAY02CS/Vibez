@@ -3,19 +3,26 @@ import { Post } from "@/Interfaces";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { initialProfileDetails, ProfileDetails } from "../interfaces/Profile";
 
 export default function UserProfile() {
-  const [userPosts, setUserPosts] = useState([]);
+  const [userPosts, setUserPosts] = useState<{ user: ProfileDetails; posts: Post[] }>({
+    user: initialProfileDetails,
+    posts: [],
+  });
   const [isFollow, setIsFollow] = useState(false);
   const [completed, setCompleted] = useState(false);
   const params = useParams();
+  const user = localStorage.getItem("user");
 
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/user/${params.id}`);
-        setUserPosts(response.data);
-        setIsFollow(response.data?.user?.followers?.includes(JSON.parse(localStorage.getItem("user"))?._id));
+        if (user) {
+          const response = await axios.get(`http://localhost:5000/user/${params.id}`);
+          setUserPosts(response.data);
+          setIsFollow(response.data?.user?.followers?.includes(JSON.parse(user)?._id));
+        }
       } catch (err) {
         console.error(err);
       }
@@ -40,15 +47,15 @@ export default function UserProfile() {
       console.log(response.data);
       setIsFollow(true);
     } catch (error) {
-      console.error("Error in followUser:", error.response?.data?.error || error.message);
+      console.error(error?.response?.data?.error);
     }
   };
-  console.log(JSON.parse(localStorage.getItem("user"))?._id);
+
   const unfollowUser = async (userId: string) => {
     try {
       const response = await axios.put(
         "http://localhost:5000/unfollow",
-        { followId: userId },
+        { followId: userId + "s" },
         {
           headers: {
             "Content-Type": "application/json",
@@ -60,7 +67,7 @@ export default function UserProfile() {
       console.log(response.data);
       setIsFollow(false);
     } catch (error) {
-      console.error("Error in followUser:", error.response?.data?.error || error.message);
+      console.error(error?.response?.data?.error);
     }
   };
 

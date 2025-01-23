@@ -43,7 +43,7 @@ router.put("/follow", requireLogin, async (req, res) => {
 
     res.json(updatedFollowingUser);
   } catch (err) {
-    res.status(422).json({ error: err.message });
+    res.status(422).json({ error: "Some error occured. Please try again" });
   }
 });
 
@@ -67,7 +67,7 @@ router.put("/unfollow", requireLogin, async (req, res) => {
 
     res.json(updatedFollowingUser);
   } catch (err) {
-    res.status(422).json({ error: err.message });
+    res.status(422).json({ error: "Some error occured. Please try again" });
   }
 });
 
