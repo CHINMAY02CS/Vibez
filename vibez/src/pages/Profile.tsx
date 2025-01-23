@@ -16,9 +16,23 @@ import { Post } from "@/Interfaces";
 export default function Profile() {
   const [myPosts, setMyPosts] = useState([]);
   const [alertOpen, setAlertOpen] = useState(false);
+  const [profileDetails, setProfileDetails] = useState({});
   const [comments, setComments] = useState<{ [key: string]: string }>({});
   const { toast } = useToast();
 
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/user/${JSON.parse(localStorage.getItem("user"))?._id}`);
+        setProfileDetails(response.data?.user);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUserPosts();
+  }, []);
+  console.log(profileDetails, "profileDetails");
   useEffect(() => {
     axios
       .get(
@@ -188,8 +202,8 @@ export default function Profile() {
           <p className="text-3xl font-bold text-center lg:text-left">{userName}</p>
           <div className="flex items-center w-full mt-4 gap-x-4">
             <p className="text-lg font-semibold">{myPosts.length} posts</p>
-            <p className="text-lg font-semibold">40 followers</p>
-            <p className="text-lg font-semibold">40 following</p>
+            <p className="text-lg font-semibold">{profileDetails?.followers?.length || 0} followers</p>
+            <p className="text-lg font-semibold">{profileDetails?.following?.length || 0} following</p>
           </div>
         </div>
       </div>
