@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CommentDetails, initialProfileDetails, ProfileDetails } from "../interfaces/Profile";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
-import { Heart, Smile, Trash, X } from "lucide-react";
+import { Heart, Smile, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function UserProfile() {
@@ -257,8 +257,6 @@ export default function UserProfile() {
               alertOpen={alertOpen}
               setAlertOpen={setAlertOpen}
               post={openPost}
-              userPosts={userPosts}
-              setUserPosts={setUserPosts}
               likePost={likePost}
               addComment={addComment}
               comments={comments}
@@ -279,8 +277,6 @@ const PostDetails = ({
   setAlertOpen,
   post,
   likePost,
-  userPosts,
-  setUserPosts,
   addComment,
   comments,
   setComments,
@@ -294,39 +290,7 @@ const PostDetails = ({
   likePost: (id: string) => void;
   unlikePost: (id: string) => void;
   addComment: (text: string, id: string) => void;
-  userPosts: { user: ProfileDetails; posts: Post[] };
-  setUserPosts: Dispatch<SetStateAction<{ user: ProfileDetails; posts: Post[] }>>;
 }) => {
-  async function deletePost(postId: string) {
-    try {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        console.error("Authorization token not found!");
-        return;
-      }
-
-      const response = await axios.delete(`http://localhost:5000/delete-post/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const updatedPost = response.data;
-
-      const newData = userPosts.posts.map((post: Post) => {
-        if (post._id === updatedPost.data._id) {
-          return updatedPost;
-        }
-        return post;
-      });
-
-      setUserPosts((prev: { user: ProfileDetails; posts: Post[] }) => ({ ...prev, posts: newData }));
-      setAlertOpen(false);
-    } catch (error) {
-      console.error("Error liking post:", error);
-    }
-  }
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
 
   return (
@@ -350,7 +314,6 @@ const PostDetails = ({
                 />
                 <p className="cursor-pointer">{post?.postedBy?.name}</p>
               </div>
-              <Trash onClick={() => deletePost(post._id)} />
             </div>
             {post?.comments?.length > 0 && (
               <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
