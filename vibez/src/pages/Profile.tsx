@@ -450,6 +450,34 @@ const ProfilePicDialog = ({
       });
   }
 
+  function removePic() {
+    axios
+      .put(
+        "http://localhost:5000/upload-profile-pic",
+        JSON.stringify({
+          pic: null,
+        }),
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((data) => {
+        console.log(data);
+        setOpenProfilePicDialog(false);
+        setSelectedImage(null);
+        setPhoto(null);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setFetch((prev) => !prev);
+      });
+  }
+
   useEffect(() => {
     if (selectedImage && uploadPic) {
       sendImageOnCloudinary();
@@ -514,7 +542,7 @@ const ProfilePicDialog = ({
           >
             Cancel
           </AlertDialogCancel>
-          <Button>Remove Profile Pic</Button>
+          <Button onClick={removePic}>Remove Profile Pic</Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
