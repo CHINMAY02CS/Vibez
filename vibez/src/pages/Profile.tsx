@@ -12,6 +12,7 @@ export default function Profile() {
   const [alertOpen, setAlertOpen] = useState(false);
   const [profileDetails, setProfileDetails] = useState<ProfileDetails>(initialProfileDetails);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
+  const [openProfilePicDialog, setOpenProfilePicDialog] = useState(false);
   const user = localStorage.getItem("user");
 
   useEffect(() => {
@@ -187,7 +188,12 @@ export default function Profile() {
   return (
     <>
       <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
-        <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="w-40 h-40 rounded-full" />
+        <img
+          src="https://avatars.githubusercontent.com/u/98474924?v=4"
+          alt="profile pic"
+          className="w-40 h-40 rounded-full cursor-pointer"
+          onClick={() => setOpenProfilePicDialog(true)}
+        />
         <div className="mt-2">
           <p className="text-3xl font-bold text-center lg:text-left">{userName}</p>
           <div className="flex items-center w-full mt-4 gap-x-4">
@@ -311,6 +317,7 @@ export default function Profile() {
           setComments={setComments}
         />
       )}
+      <ProfilePicDialog openProfilePicDialog={openProfilePicDialog} setOpenProfilePicDialog={setOpenProfilePicDialog} />
     </>
   );
 }
@@ -444,6 +451,68 @@ const PostDetails = ({
           </div>
         </div>
         <AlertDialogFooter></AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
+
+import {
+  AlertDialogAction,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+
+const ProfilePicDialog = ({
+  openProfilePicDialog,
+  setOpenProfilePicDialog,
+}: {
+  openProfilePicDialog?: boolean;
+  setOpenProfilePicDialog?: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const [selectedImage, setSelectedImage] = useState<string | any>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setPhoto(imageUrl);
+      setSelectedImage(file);
+    }
+  }
+  // const [imageUrl, setImageUrl] = useState("");
+
+  return (
+    <AlertDialog open={openProfilePicDialog} onOpenChange={setOpenProfilePicDialog}>
+      <AlertDialogTrigger asChild className="hidden"></AlertDialogTrigger>
+      <AlertDialogContent className="rounded-xl">
+        <AlertDialogHeader>
+          <AlertDialogTitle>Profile Pic</AlertDialogTitle>
+        </AlertDialogHeader>
+        <CardContent className="flex items-center justify-center p-0 m-0 h-100">
+          {photo ? (
+            <img className="object-contain w-auto h-full max-h-full pt-3" src={photo} alt="Selected preview" />
+          ) : (
+            <p className="text-gray-500">Select the image you want to upload</p>
+          )}
+        </CardContent>
+
+        <Label
+          htmlFor="fileInput"
+          className="px-4 py-3 text-center text-white bg-blue-600 rounded cursor-pointer h-9 hover:bg-blue-600"
+        >
+          Add a New Profile Pic
+        </Label>
+
+        <Input type="file" name="image" id="fileInput" className="hidden" onChange={handleImageChange} />
+
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <Button>Remove Profile Pic</Button>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
