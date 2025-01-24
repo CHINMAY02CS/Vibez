@@ -7,7 +7,7 @@ const POST = mongoose.model("POST");
 router.get("/get-all-posts", requireLogin, (req, res) => {
   POST.find()
     .populate("postedBy", "_id name")
-    .populate("comments.postedBy", "_id name photo")
+    .populate("comments.postedBy", "_id name Photo")
     .then((posts) => res.json(posts))
     .catch((err) => console.log(err));
 });
@@ -15,7 +15,7 @@ router.get("/get-all-posts", requireLogin, (req, res) => {
 router.get("/get-my-posts", requireLogin, (req, res) => {
   POST.find({ postedBy: req.user._id })
     .populate("postedBy", "_id name")
-    .populate("comments.postedBy", "_id name photo")
+    .populate("comments.postedBy", "_id name Photo")
     .then((posts) => res.json(posts))
     .catch((err) => console.log(err));
 });
@@ -28,7 +28,7 @@ router.post("/create-post", requireLogin, (req, res) => {
   req.user;
   const post = new POST({
     body,
-    photo: pic,
+    Photo: pic,
     postedBy: req.user,
   });
   post
@@ -72,7 +72,7 @@ router.put("/like", requireLogin, async (req, res) => {
       { new: true }
     )
       .populate("postedBy", "_id name")
-      .populate("comments.postedBy", "_id name photo");
+      .populate("comments.postedBy", "_id name Photo");
 
     res.json(updatedPost);
   } catch (err) {
@@ -91,8 +91,8 @@ router.put("/unlike", requireLogin, async (req, res) => {
       },
       { new: true }
     )
-      .populate("postedBy", "_id name photo")
-      .populate("comments.postedBy", "_id name photo");
+      .populate("postedBy", "_id name Photo")
+      .populate("comments.postedBy", "_id name Photo");
 
     res.json(updatedPost);
   } catch (err) {
@@ -112,7 +112,7 @@ router.put("/comment", requireLogin, async (req, res) => {
       { new: true }
     )
       .populate("comments.postedBy", "_id name")
-      .populate("postedBy", "_id name photo");
+      .populate("postedBy", "_id name Photo");
     if (!updatedPost) {
       return res.status(404).json({ error: "Post not found" });
     }

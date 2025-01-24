@@ -19,7 +19,6 @@ export default function UserProfile() {
   const params = useParams();
   const user = localStorage.getItem("user");
 
-  console.log(userPosts, "userPosts");
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
@@ -62,7 +61,7 @@ export default function UserProfile() {
     try {
       const response = await axios.put(
         "http://localhost:5000/unfollow",
-        { followId: userId + "s" },
+        { followId: userId },
         {
           headers: {
             "Content-Type": "application/json",
@@ -213,7 +212,7 @@ export default function UserProfile() {
       console.error("Error adding comment:", error);
     }
   }
-
+  const sameUser = params.id === JSON.parse(user)._id;
   return (
     <div>
       {completed ? (
@@ -227,14 +226,18 @@ export default function UserProfile() {
                 <p className="text-lg font-semibold">{userPosts?.user?.followers?.length || 0} followers</p>
                 <p className="text-lg font-semibold">{userPosts?.user?.following?.length || 0} following</p>
               </div>
-              {isFollow ? (
-                <Button className="mt-4 bg-yellow-500" onClick={() => unfollowUser(userPosts?.user?._id)}>
-                  UnFollow
-                </Button>
-              ) : (
-                <Button className="mt-4 bg-blue-600" onClick={() => followUser(userPosts?.user?._id)}>
-                  Follow
-                </Button>
+              {!sameUser && (
+                <>
+                  {isFollow ? (
+                    <Button className="mt-4 bg-yellow-500" onClick={() => unfollowUser(userPosts?.user?._id)}>
+                      UnFollow
+                    </Button>
+                  ) : (
+                    <Button className="mt-4 bg-blue-600" onClick={() => followUser(userPosts?.user?._id)}>
+                      Follow
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           </div>

@@ -64,10 +64,14 @@ router.put("/unfollow", requireLogin, async (req, res) => {
       { $pull: { following: req.body.followId } },
       { new: true }
     );
-
+    if (!updatedFollowingUser) {
+      return res.status(422).json({ error: "User to unfollow not found" });
+    }
     res.json(updatedFollowingUser);
   } catch (err) {
-    res.status(422).json({ error: "Some error occured. Please try again" });
+    res
+      .status(422)
+      .json({ error: "Some error occured. Please try again", err: err });
   }
 });
 
