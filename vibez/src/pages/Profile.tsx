@@ -14,6 +14,7 @@ export default function Profile() {
   const [comments, setComments] = useState<{ [key: string]: string }>({});
   const [openProfilePicDialog, setOpenProfilePicDialog] = useState(false);
   const user = localStorage.getItem("user");
+  const [fetch, setFetch] = useState(false);
 
   useEffect(() => {
     const fetchUserPosts = async () => {
@@ -28,7 +29,7 @@ export default function Profile() {
     };
 
     fetchUserPosts();
-  }, []);
+  }, [fetch]);
   useEffect(() => {
     axios
       .get(
@@ -189,7 +190,7 @@ export default function Profile() {
     <>
       <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
         <img
-          src="https://avatars.githubusercontent.com/u/98474924?v=4"
+          src={profileDetails.Photo ? profileDetails.Photo : `https://avatars.githubusercontent.com/u/98474924?v=4`}
           alt="profile pic"
           className="w-40 h-40 rounded-full cursor-pointer"
           onClick={() => setOpenProfilePicDialog(true)}
@@ -208,90 +209,6 @@ export default function Profile() {
           myPosts.map((post: Post, index) => {
             return (
               <div key={index}>
-                {/* <AlertDialog open={alertOpen} onOpenChange={setAlertOpen} key={index}>
-                  <AlertDialogTrigger className="text-xs text-gray-500 hover:underline">
-                    <img src={post?.photo} alt="" className="max-w-40 max-h-40" id={String(index)} />
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="px-3 py-0 rounded-lg max-h-176 lg:max-w-240 lg:max-h-none">
-                    <div className="flex items-end justify-end">
-                      <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max">
-                        <X className="w-4 h-4" />{" "}
-                      </AlertDialogCancel>
-                    </div>
-                    <div className="grid items-start lg:grid-cols-2 gap-x-4">
-                      <img className="h-80 w-120" src={post?.photo} />
-                      <div>
-                        <div className="flex items-center justify-between p-2 mt-2 border border-gray-200 rounded-sm lg:mt-0">
-                          <div className="flex items-center gap-x-4">
-                            <img
-                              src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
-                              alt=""
-                              className="w-8 h-8 rounded-full cursor-pointer"
-                            />
-                            <p className="cursor-pointer">{post?.postedBy?.name}</p>
-                          </div>
-                          <Trash onClick={() => deletePost(post._id)} />
-                        </div>
-                        {post?.comments?.length > 0 && (
-                          <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
-                            {post.comments.map((comment: CommentDetails, index) => {
-                              return (
-                                <div className="flex items-center p-2 gap-x-4" id={String(index)} key={index}>
-                                  <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
-                                  <div>
-                                    <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
-                                    <p className="text-xs cursor-pointer">{comment.comment}</p>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                        <div className="flex items-center w-full p-3 px-1 gap-x-4">
-                          <div className="flex items-center gap-x-1">
-                            {post?.likes?.includes(userId) ? (
-                              <Heart
-                                className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
-                                onClick={() => unlikePost(post._id)}
-                              />
-                            ) : (
-                              <Heart
-                                className="w-6 h-6 font-normal cursor-pointer"
-                                onClick={() => likePost(post._id)}
-                              />
-                            )}
-                            <p className="mt-1.5 text-xs">{post?.likes ? post.likes.length : "0"}</p>
-                          </div>
-                          <div className="flex items-center w-full">
-                            <Smile className="w-4 h-4 mr-2 cursor-pointer" />
-                            <div className="flex items-center w-full space-x-2">
-                              <Input
-                                type="text"
-                                placeholder="Add your comment . . ."
-                                value={comments[post._id] || ""}
-                                className="h-8 border shadow-none placeholder:text-xs"
-                                onChange={(e) =>
-                                  setComments((prev) => ({
-                                    ...prev,
-                                    [post._id]: e.target.value,
-                                  }))
-                                }
-                              />
-                              <Button
-                                type="submit"
-                                onClick={() => addComment(comments[post._id], post._id)}
-                                className="h-8"
-                              >
-                                Add
-                              </Button>
-                            </div>{" "}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <AlertDialogFooter></AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog> */}
                 <img
                   src={post?.photo}
                   alt=""
@@ -317,7 +234,12 @@ export default function Profile() {
           setComments={setComments}
         />
       )}
-      <ProfilePicDialog openProfilePicDialog={openProfilePicDialog} setOpenProfilePicDialog={setOpenProfilePicDialog} />
+      <ProfilePicDialog
+        openProfilePicDialog={openProfilePicDialog}
+        setOpenProfilePicDialog={setOpenProfilePicDialog}
+        setFetch={setFetch}
+        profileDetails={profileDetails}
+      />
     </>
   );
 }
@@ -456,34 +378,89 @@ const PostDetails = ({
   );
 };
 
-import {
-  AlertDialogAction,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
 const ProfilePicDialog = ({
   openProfilePicDialog,
   setOpenProfilePicDialog,
+  setFetch,
+  profileDetails,
 }: {
-  openProfilePicDialog?: boolean;
-  setOpenProfilePicDialog?: Dispatch<SetStateAction<boolean>>;
+  openProfilePicDialog: boolean;
+  setOpenProfilePicDialog: Dispatch<SetStateAction<boolean>>;
+  setFetch: Dispatch<SetStateAction<boolean>>;
+  profileDetails: any;
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | any>(null);
   const [photo, setPhoto] = useState<string | null>(null);
-
+  const [imageUrl, setImageUrl] = useState("");
+  const [saveProfilePic, setSaveProfilePic] = useState(false);
+  const [uploadPic, setUploadPic] = useState(false);
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setPhoto(imageUrl);
       setSelectedImage(file);
+      setSaveProfilePic(true);
     }
   }
-  // const [imageUrl, setImageUrl] = useState("");
+
+  function sendImageOnCloudinary() {
+    const data = new FormData();
+    data.append("file", selectedImage);
+    data.append("upload_preset", "vibez-app");
+    data.append("clound_name", "chinmaycloud ");
+    fetch("https://api.cloudinary.com/v1_1/chinmaycloud/image/upload", {
+      method: "post",
+      body: data,
+    })
+      .then((res) => res.json())
+      .then((data) => setImageUrl(data.url))
+      .catch((err) => console.log(err));
+  }
+
+  function savePic() {
+    axios
+      .put(
+        "http://localhost:5000/upload-profile-pic",
+        JSON.stringify({
+          pic: imageUrl,
+        }),
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+            "Content-Type": "application/json",
+          },
+        },
+      )
+      .then((data) => {
+        console.log(data.data);
+        setOpenProfilePicDialog(false);
+        setSelectedImage(null);
+        setPhoto(null);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setFetch((prev) => !prev);
+      });
+  }
+
+  useEffect(() => {
+    if (selectedImage && uploadPic) {
+      sendImageOnCloudinary();
+    }
+  }, [selectedImage, uploadPic]);
+
+  useEffect(() => {
+    if (imageUrl && uploadPic) {
+      savePic();
+    }
+  }, [imageUrl, uploadPic]);
 
   return (
     <AlertDialog open={openProfilePicDialog} onOpenChange={setOpenProfilePicDialog}>
@@ -496,21 +473,47 @@ const ProfilePicDialog = ({
           {photo ? (
             <img className="object-contain w-auto h-full max-h-full pt-3" src={photo} alt="Selected preview" />
           ) : (
-            <p className="text-gray-500">Select the image you want to upload</p>
+            <>
+              {profileDetails.Photo ? (
+                <img
+                  className="object-contain w-auto h-full max-h-full pt-3"
+                  src={profileDetails.Photo}
+                  alt="Selected preview"
+                />
+              ) : (
+                <p className="text-gray-500">Select the image you want to upload</p>
+              )}
+            </>
           )}
         </CardContent>
+        {saveProfilePic ? (
+          <>
+            <Button onClick={() => setUploadPic(true)}>Save</Button>
+          </>
+        ) : (
+          <>
+            <Label
+              htmlFor="fileInput"
+              className="px-4 py-3 text-center text-white bg-blue-600 rounded cursor-pointer h-9 hover:bg-blue-600"
+            >
+              Add a New Profile Pic
+            </Label>
 
-        <Label
-          htmlFor="fileInput"
-          className="px-4 py-3 text-center text-white bg-blue-600 rounded cursor-pointer h-9 hover:bg-blue-600"
-        >
-          Add a New Profile Pic
-        </Label>
-
-        <Input type="file" name="image" id="fileInput" className="hidden" onChange={handleImageChange} />
+            <Input type="file" name="image" id="fileInput" className="hidden" onChange={handleImageChange} />
+          </>
+        )}
 
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel
+            onClick={() => {
+              setFetch((prev) => !prev);
+              setPhoto(null);
+              setSelectedImage(null);
+              setSaveProfilePic(false);
+            }}
+          >
+            Cancel
+          </AlertDialogCancel>
           <Button>Remove Profile Pic</Button>
         </AlertDialogFooter>
       </AlertDialogContent>

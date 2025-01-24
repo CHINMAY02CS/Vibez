@@ -71,4 +71,24 @@ router.put("/unfollow", requireLogin, async (req, res) => {
   }
 });
 
+router.put("/upload-profile-pic", requireLogin, async (req, res) => {
+  try {
+    const updatedUser = await USER.findByIdAndUpdate(
+      req.user._id,
+      { $set: { Photo: req.body.pic } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(422).json({ error: "User not found or update failed" });
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", details: err.message });
+  }
+});
+
 module.exports = router;
