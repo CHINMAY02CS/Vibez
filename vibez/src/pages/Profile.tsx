@@ -220,7 +220,7 @@ export default function Profile() {
                 <img
                   src={post?.photo}
                   alt=""
-                  className="max-w-40 max-h-40"
+                  className="duration-300 cursor-pointer max-w-40 max-h-40 hover:scale-105"
                   id={String(index)}
                   onClick={() => setPostInDialog(post._id)}
                 />
@@ -306,6 +306,7 @@ const PostDetails = ({
     }
   }
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
+  const navigate = useNavigate();
 
   return (
     <AlertDialog open={alertOpen} onOpenChange={setAlertOpen} key={post._id}>
@@ -316,29 +317,72 @@ const PostDetails = ({
           </AlertDialogCancel>
         </div>
         <div className="grid items-start lg:grid-cols-2 gap-x-4">
-          <img className="h-80 w-120" src={post?.photo} />
+          <div className="flex items-center justify-between p-2 mb-2 -mt-2 border border-gray-200 rounded-sm lg:hidden lg:mt-0">
+            <div
+              className="flex items-center gap-x-4"
+              onClick={() => {
+                navigate(`/user/${post?.postedBy?._id}`);
+                setAlertOpen(false);
+              }}
+            >
+              {post?.postedBy?.Photo ? (
+                <img src={post.postedBy.Photo} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+              ) : (
+                <UserCircle className="w-8 h-8 rounded-full cursor-pointer" />
+              )}
+              <p className="cursor-pointer">{post?.postedBy?.name}</p>
+            </div>
+            <Trash onClick={() => deletePost(post._id)} className="cursor-pointer hover:text-red-600" />
+          </div>
+          <img className="cursor-pointer h-80 w-120" src={post?.photo} />
           {/* right card */}
           <div>
-            <div className="flex items-center justify-between p-2 mt-2 border border-gray-200 rounded-sm lg:mt-0">
+            <div className="items-center justify-between hidden p-2 mt-2 border border-gray-200 rounded-sm lg:flex lg:mt-0">
               <div className="flex items-center gap-x-4">
-                <img
-                  src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
-                  alt=""
-                  className="w-8 h-8 rounded-full cursor-pointer"
-                />
+                {post?.postedBy?.Photo ? (
+                  <img src={post.postedBy.Photo} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+                ) : (
+                  <UserCircle className="w-8 h-8 rounded-full cursor-pointer" />
+                )}
                 <p className="cursor-pointer">{post?.postedBy?.name}</p>
               </div>
-              <Trash onClick={() => deletePost(post._id)} />
+              <Trash onClick={() => deletePost(post._id)} className="cursor-pointer hover:text-red-600" />
             </div>
             {post?.comments?.length > 0 && (
               <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
                 {post.comments.map((comment: CommentDetails, index: number) => {
                   return (
                     <div className="flex items-center p-2 gap-x-4" id={String(index)} key={index}>
-                      <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+                      {comment?.postedBy?.Photo ? (
+                        <img
+                          src={comment?.postedBy?.Photo}
+                          alt=""
+                          className="w-8 h-8 rounded-full cursor-pointer"
+                          onClick={() => {
+                            navigate(`/user/${comment?.postedBy?._id}`);
+                            setAlertOpen(false);
+                          }}
+                        />
+                      ) : (
+                        <UserCircle
+                          className="w-8 h-8 rounded-full cursor-pointer"
+                          onClick={() => {
+                            navigate(`/user/${comment?.postedBy?._id}`);
+                            setAlertOpen(false);
+                          }}
+                        />
+                      )}
                       <div>
-                        <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
-                        <p className="text-xs cursor-pointer">{comment.comment}</p>
+                        <p
+                          className="text-sm font-bold cursor-pointer"
+                          onClick={() => {
+                            navigate(`/user/${comment?.postedBy?._id}`);
+                            setAlertOpen(false);
+                          }}
+                        >
+                          {comment?.postedBy?.name}
+                        </p>
+                        <p className="text-xs">{comment.comment}</p>
                       </div>
                     </div>
                   );
@@ -389,6 +433,7 @@ const PostDetails = ({
 import { AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePicDialog = ({
   openProfilePicDialog,

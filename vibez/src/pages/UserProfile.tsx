@@ -2,10 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Post } from "@/Interfaces";
 import axios from "axios";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CommentDetails, initialProfileDetails, ProfileDetails } from "../interfaces/Profile";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
-import { Heart, Smile, X } from "lucide-react";
+import { Heart, Smile, UserCircle, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 export default function UserProfile() {
@@ -218,7 +218,11 @@ export default function UserProfile() {
       {completed ? (
         <>
           <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
-            <img src="https://avatars.githubusercontent.com/u/98474924?v=4" alt="" className="w-40 h-40 rounded-full" />
+            {userPosts?.user?.Photo ? (
+              <img src={userPosts.user.Photo} alt="" className="w-40 h-40 rounded-full" />
+            ) : (
+              <UserCircle className="w-40 h-40 rounded-full cursor-pointer fill-white" />
+            )}
             <div className="mt-2">
               <p className="text-3xl font-bold text-center lg:text-left">{userPosts?.user?.name}</p>
               <div className="flex items-center w-full mt-4 gap-x-4">
@@ -247,8 +251,8 @@ export default function UserProfile() {
                 return (
                   <img
                     src={post?.photo}
-                    alt=""
-                    className="max-w-40 max-h-40"
+                    alt="post pic"
+                    className="duration-300 cursor-pointer max-w-40 max-h-40 hover:scale-105"
                     id={post._id}
                     onClick={() => setPostInDialog(post._id)}
                   />
@@ -295,6 +299,7 @@ const PostDetails = ({
   addComment: (text: string, id: string) => void;
 }) => {
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
+  const navigate = useNavigate();
 
   return (
     <AlertDialog open={alertOpen} onOpenChange={setAlertOpen} key={post._id}>
@@ -305,16 +310,38 @@ const PostDetails = ({
           </AlertDialogCancel>
         </div>
         <div className="grid items-start lg:grid-cols-2 gap-x-4">
+          <div className="flex items-center justify-between p-2 mb-2 -mt-4 border border-gray-200 rounded-sm lg:hidden">
+            <div
+              className="flex items-center gap-x-4"
+              onClick={() => {
+                navigate(`/user/${post?.postedBy?._id}`);
+                setAlertOpen(false);
+              }}
+            >
+              {post?.postedBy?.Photo ? (
+                <img src={post.postedBy.Photo} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+              ) : (
+                <UserCircle className="w-8 h-8 rounded-full cursor-pointer" />
+              )}
+              <p className="cursor-pointer">{post?.postedBy?.name}</p>
+            </div>
+          </div>
           <img className="h-80 w-120" src={post?.photo} />
           {/* right card */}
           <div>
-            <div className="flex items-center justify-between p-2 mt-2 border border-gray-200 rounded-sm lg:mt-0">
-              <div className="flex items-center gap-x-4">
-                <img
-                  src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
-                  alt=""
-                  className="w-8 h-8 rounded-full cursor-pointer"
-                />
+            <div className="items-center justify-between hidden p-2 mt-2 border border-gray-200 rounded-sm lg:flex lg:mt-0">
+              <div
+                className="flex items-center gap-x-4"
+                onClick={() => {
+                  navigate(`/user/${post?.postedBy?._id}`);
+                  setAlertOpen(false);
+                }}
+              >
+                {post?.postedBy?.Photo ? (
+                  <img src={post.postedBy.Photo} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+                ) : (
+                  <UserCircle className="w-8 h-8 rounded-full cursor-pointer" />
+                )}
                 <p className="cursor-pointer">{post?.postedBy?.name}</p>
               </div>
             </div>
@@ -323,9 +350,29 @@ const PostDetails = ({
                 {post.comments.map((comment: CommentDetails, index: number) => {
                   return (
                     <div className="flex items-center p-2 gap-x-4" id={String(index)} key={index}>
-                      <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+                      {comment?.postedBy?.Photo ? (
+                        <img
+                          src={comment.postedBy.Photo}
+                          alt=""
+                          className="w-8 h-8 rounded-full cursor-pointer"
+                          onClick={() => {
+                            navigate(`/user/${comment?.postedBy?._id}`);
+                            setAlertOpen(false);
+                          }}
+                        />
+                      ) : (
+                        <UserCircle className="w-8 h-8 rounded-full cursor-pointer" />
+                      )}
                       <div>
-                        <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
+                        <p
+                          className="text-sm font-bold cursor-pointer"
+                          onClick={() => {
+                            navigate(`/user/${comment?.postedBy?._id}`);
+                            setAlertOpen(false);
+                          }}
+                        >
+                          {comment?.postedBy?.name}
+                        </p>
                         <p className="text-xs cursor-pointer">{comment.comment}</p>
                       </div>
                     </div>
