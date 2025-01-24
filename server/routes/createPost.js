@@ -131,7 +131,7 @@ router.get("/my-following-post", requireLogin, async (req, res) => {
 
     const posts = await POST.find({ postedBy: { $in: req.user.following } })
       .populate("postedBy", "_id name Photo")
-      .populate("comments.postedBy", "_id name");
+      .populate("comments.postedBy", "_id name Photo");
 
     if (!posts.length) {
       return res

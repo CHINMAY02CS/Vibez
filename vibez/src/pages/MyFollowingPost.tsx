@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Post } from "@/Interfaces";
 import axios from "axios";
-import { Heart, Smile, X } from "lucide-react";
+import { Heart, Smile, UserCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -166,12 +166,19 @@ export default function FollowingPosts() {
             <Card className="md:w-120" key={index}>
               <CardHeader className="p-4 border-b">
                 <CardTitle className="flex items-center gap-x-4">
-                  <img
-                    src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
-                    alt=""
-                    className="w-8 h-8 rounded-full cursor-pointer"
-                    onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
-                  />
+                  {post.postedBy?.Photo ? (
+                    <img
+                      src={post.postedBy.Photo}
+                      alt=""
+                      className="w-8 h-8 rounded-full cursor-pointer"
+                      onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
+                    />
+                  ) : (
+                    <UserCircle
+                      className="w-8 h-8 rounded-full cursor-pointer"
+                      onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
+                    />
+                  )}
                   <p className="cursor-pointer" onClick={() => navigate(`/user/${post?.postedBy?._id}`)}>
                     {post?.postedBy?.name}
                   </p>
@@ -204,25 +211,73 @@ export default function FollowingPosts() {
                       </AlertDialogCancel>
                     </div>
                     <div className="grid items-start lg:grid-cols-2 gap-x-4">
+                      <div className="flex items-center p-2 mb-2 -mt-4 border border-gray-200 rounded-sm lg:hidden gap-x-4">
+                        {post.postedBy.Photo ? (
+                          <img
+                            src={post.postedBy.Photo}
+                            alt="profilepic"
+                            className="w-8 h-8 rounded-full cursor-pointer"
+                            onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
+                          />
+                        ) : (
+                          <UserCircle
+                            className="w-8 h-8 rounded-full cursor-pointer"
+                            onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
+                          />
+                        )}
+
+                        <p className="cursor-pointer" onClick={() => navigate(`/user/${post?.postedBy?._id}`)}>
+                          {post?.postedBy?.name}
+                        </p>
+                      </div>
                       <img className="h-80 w-120" src={post?.photo} />
                       {/* right card */}
                       <div>
-                        <div className="flex items-center p-2 border border-gray-200 rounded-sm gap-x-4">
-                          <img
-                            src={"https://avatars.githubusercontent.com/u/98474924?v=4"}
-                            alt=""
-                            className="w-8 h-8 rounded-full cursor-pointer"
-                          />
-                          <p className="cursor-pointer">{post?.postedBy?.name}</p>
+                        <div className="items-center hidden p-2 border border-gray-200 rounded-sm lg:flex gap-x-4">
+                          {post.postedBy.Photo ? (
+                            <img
+                              src={post.postedBy.Photo}
+                              alt="profilepic"
+                              className="w-8 h-8 rounded-full cursor-pointer"
+                              onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
+                            />
+                          ) : (
+                            <UserCircle
+                              className="w-8 h-8 rounded-full cursor-pointer"
+                              onClick={() => navigate(`/user/${post?.postedBy?._id}`)}
+                            />
+                          )}
+
+                          <p className="cursor-pointer" onClick={() => navigate(`/user/${post?.postedBy?._id}`)}>
+                            {post?.postedBy?.name}
+                          </p>
                         </div>
                         <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
                           {post.comments.length > 0 &&
                             post.comments.map((comment: CommentDetails) => {
                               return (
                                 <div className="flex items-center p-2 gap-x-4">
-                                  <img src={""} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
+                                  {comment?.postedBy?.Photo ? (
+                                    <img
+                                      src={comment.postedBy.Photo}
+                                      alt="profilepic"
+                                      className="w-8 h-8 rounded-full cursor-pointer"
+                                      onClick={() => navigate(`/user/${comment?.postedBy?._id}`)}
+                                    />
+                                  ) : (
+                                    <UserCircle
+                                      className="w-8 h-8 rounded-full cursor-pointer"
+                                      onClick={() => navigate(`/user/${comment?.postedBy?._id}`)}
+                                    />
+                                  )}
+
                                   <div>
-                                    <p className="text-sm font-bold cursor-pointer">{comment?.postedBy?.name}</p>
+                                    <p
+                                      className="text-sm font-bold cursor-pointer"
+                                      onClick={() => navigate(`/user/${comment?.postedBy?._id}`)}
+                                    >
+                                      {comment?.postedBy?.name}
+                                    </p>
                                     <p className="text-xs cursor-pointer">{comment.comment}</p>
                                   </div>
                                 </div>
