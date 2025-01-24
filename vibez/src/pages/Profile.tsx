@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
-import { Heart, Trash, Smile, X } from "lucide-react";
+import { Heart, Trash, Smile, X, UserCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Post } from "@/Interfaces";
@@ -189,12 +189,20 @@ export default function Profile() {
   return (
     <>
       <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
-        <img
-          src={profileDetails.Photo ? profileDetails.Photo : `https://avatars.githubusercontent.com/u/98474924?v=4`}
-          alt="profile pic"
-          className="w-40 h-40 rounded-full cursor-pointer"
-          onClick={() => setOpenProfilePicDialog(true)}
-        />
+        {profileDetails.Photo ? (
+          <img
+            src={profileDetails.Photo}
+            alt="profile pic"
+            className="w-40 h-40 rounded-full cursor-pointer"
+            onClick={() => setOpenProfilePicDialog(true)}
+          />
+        ) : (
+          <UserCircle
+            className="w-40 h-40 rounded-full cursor-pointer fill-white"
+            onClick={() => setOpenProfilePicDialog(true)}
+          />
+        )}
+
         <div className="mt-2">
           <p className="text-3xl font-bold text-center lg:text-left">{userName}</p>
           <div className="flex items-center w-full mt-4 gap-x-4">
