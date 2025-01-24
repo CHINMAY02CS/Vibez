@@ -1,50 +1,28 @@
 const express = require("express");
-const router = express.Router();
 const mongoose = require("mongoose");
 const USER = mongoose.model("USER");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
+const signUpService = require("../services/auth");
+
 const jwt = require("jsonwebtoken");
-const requireLogin = require("../middlewares/requireLogin");
+const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send("Hello");
-});
-
-router.post("/signup", (req, res) => {
+// API for signup
+router.post("/signup", async (req, res) => {
   const { name, userName, email, password } = req.body;
-  if (!name || !email || !password || !userName) {
-    return res.status(422).json({ error: "Please add all the fields" });
-  }
-
-  USER.findOne({
-    $or: [{ email: email }, { userName: userName }],
-  }).then((savedUser) => {
-    if (savedUser) {
-      return res
-        .status(422)
-        .json({ error: "User already exists with this email or username" });
+  try {
+    const result = await signUpService({ name, email, userName, password });
+    if (result.error) {
+      return res.status(422).json({ error: result.error });
     }
-    bcrypt.hash(password, 12).then((hashedPassword) => {
-      const user = new USER({
-        name,
-        email,
-        userName,
-        password: hashedPassword,
-      });
-
-      user
-        .save()
-        .then((user) => {
-          res.json({ message: "user saved successfully" });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
-  });
+    return res.status(200).json({ result: result });
+  } catch (error) {
+    return res.status(500).json({ error: error });
+  }
 });
 
+// API for signin
 router.post("/signin", (req, res) => {
   const { email, password } = req.body;
 
@@ -59,14 +37,12 @@ router.post("/signin", (req, res) => {
       .compare(password, savedUser.password)
       .then((match) => {
         if (match) {
-          // return res.status(200).json({message:"Signed In successfully"})
           const token = jwt.sign(
             { _id: savedUser._id },
             process.env.JWT_SECRET_KEY
           );
           const { _id, name, email, userName } = savedUser;
           res.json({ token, user: { _id, name, email, userName } });
-          console.log({ token, user: { _id, name, email, userName } });
         } else {
           return res.status(422).json({ error: "Invalid password" });
         }
