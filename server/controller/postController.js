@@ -13,7 +13,7 @@ const getAllPosts = async (req, res) => {
   try {
     const posts = await getAllPostsService();
     if (posts.error) {
-      return res.status(404).json({ error: "No posts found" });
+      return res.status(404).json({ error: posts.error });
     }
     return res.status(200).json(posts);
   } catch (err) {
@@ -25,7 +25,7 @@ const getSelfPosts = async (req, res) => {
   try {
     const posts = await getSelfPostsService({ id: req.user._id });
     if (posts.error) {
-      return res.status(404).json({ error: "No posts found" });
+      return res.status(404).json({ error: posts.error });
     }
     return res.status(200).json(posts);
   } catch (err) {

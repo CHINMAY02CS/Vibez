@@ -36,7 +36,7 @@ const getSelfPostsService = async ({ id }) => {
 const createPostService = async ({ body, pic, user }) => {
   try {
     if (!body || !pic) {
-      return res.status(422).json({ error: "Please add all the fields" });
+      return { error: "Please add all the fields" };
     }
     const post = new POST({
       body: body,
@@ -69,7 +69,7 @@ const commentPostService = async ({ text, userId, postId }) => {
       .populate("postedBy", "_id name Photo");
 
     if (!updatedPost) {
-      return res.status(404).json({ error: "Post not found" });
+      return { error: "Post not found" };
     }
 
     return updatedPost;
