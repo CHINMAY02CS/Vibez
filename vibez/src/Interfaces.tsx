@@ -1,6 +1,7 @@
 export interface User {
   _id: string;
   name: string;
+  Photo?: string;
 }
 
 export interface Post {
@@ -10,6 +11,6 @@ export interface Post {
   postedBy: User;
   createdAt: string;
   updatedAt: string;
-  likes: string[];
+  likes?: string[];
   comments: [];
 }

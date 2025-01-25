@@ -1,10 +1,11 @@
 export interface ProfileDetails {
-  followers: string[];
-  following: string[];
+  followers?: string[];
+  following?: string[];
   _id: string;
   name: string;
   userName: string;
   email: string;
+  Photo?: string;
 }
 
 export interface CommentDetails {
@@ -12,6 +13,7 @@ export interface CommentDetails {
   postedBy: {
     _id: string;
     name: string;
+    Photo?: string;
   };
   _id: string;
 }

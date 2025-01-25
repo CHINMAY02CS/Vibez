@@ -5,13 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { initialProfileDetails, ProfileDetails } from "@/interfaces/Profile";
+import { UserCircle } from "lucide-react";
 
 export default function CreatePost() {
   const [selectedImage, setSelectedImage] = useState<string | any>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [caption, setCaption] = useState<string>("");
   const [imageUrl, setImageUrl] = useState("");
-
+  const user = localStorage.getItem("user");
+  const [profileDetails, setProfileDetails] = useState<ProfileDetails>(initialProfileDetails);
   const navigate = useNavigate();
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -21,6 +24,21 @@ export default function CreatePost() {
       setSelectedImage(file);
     }
   }
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      try {
+        if (user) {
+          const response = await axios.get(`http://localhost:5000/user/${JSON.parse(user)?._id}`);
+          setProfileDetails(response.data?.user);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUserPosts();
+  }, []);
 
   useEffect(() => {
     if (imageUrl) {
@@ -60,16 +78,22 @@ export default function CreatePost() {
       .then((data) => setImageUrl(data.url))
       .catch((err) => console.log(err));
   }
+  console.log(profileDetails);
   return (
     <div className="flex items-center justify-center">
       <Card className="md:w-120">
         <CardHeader className="p-2 border-b">
           <CardTitle className="flex items-center gap-x-4">
-            <img
-              src="https://avatars.githubusercontent.com/u/98474924?v=4"
-              alt=""
-              className="w-8 h-8 rounded-full cursor-pointer"
-            />
+            {profileDetails?.Photo ? (
+              <img
+                src={profileDetails.Photo}
+                alt="profile pic"
+                className="w-8 h-8 rounded-full cursor-pointer"
+                onClick={() => navigate("/profile")}
+              />
+            ) : (
+              <UserCircle className="w-8 h-8 rounded-full cursor-pointer" onClick={() => navigate("/profile")} />
+            )}
             <p>Create your new post</p>
           </CardTitle>
         </CardHeader>

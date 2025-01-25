@@ -212,7 +212,7 @@ export default function UserProfile() {
       console.error("Error adding comment:", error);
     }
   }
-  const sameUser = params.id === JSON.parse(user)._id;
+  const sameUser = user ? params.id === JSON.parse(user)._id : false;
   return (
     <div>
       {completed ? (

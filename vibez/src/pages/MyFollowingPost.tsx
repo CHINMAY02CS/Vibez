@@ -183,7 +183,7 @@ export default function FollowingPosts() {
               </CardContent>
               <CardFooter className="flex-col items-start p-4 gap-y-2">
                 <div className="flex gap-x-1">
-                  {post.likes.includes(userId) ? (
+                  {post?.likes?.includes(userId) ? (
                     <Heart
                       className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
                       onClick={() => unlikePost(post._id)}
@@ -280,7 +280,7 @@ export default function FollowingPosts() {
                         </div>
                         <div className="flex items-center w-full p-3 px-1 gap-x-4">
                           <div className="flex items-center gap-x-1">
-                            {post.likes.includes(userId) ? (
+                            {post?.likes?.includes(userId) ? (
                               <Heart
                                 className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
                                 onClick={() => unlikePost(post._id)}

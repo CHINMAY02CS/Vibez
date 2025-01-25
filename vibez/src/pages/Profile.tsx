@@ -444,7 +444,7 @@ const ProfilePicDialog = ({
   openProfilePicDialog: boolean;
   setOpenProfilePicDialog: Dispatch<SetStateAction<boolean>>;
   setFetch: Dispatch<SetStateAction<boolean>>;
-  profileDetails: any;
+  profileDetails: ProfileDetails;
 }) => {
   const [selectedImage, setSelectedImage] = useState<string | any>(null);
   const [photo, setPhoto] = useState<string | null>(null);
