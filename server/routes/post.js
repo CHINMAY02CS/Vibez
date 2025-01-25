@@ -3,39 +3,20 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const requireLogin = require("../middlewares/requireLogin");
 const POST = mongoose.model("POST");
+const {
+  getAllPosts,
+  getSelfPosts,
+  createPost,
+} = require("../controller/postController");
 
-router.get("/get-all-posts", requireLogin, (req, res) => {
-  POST.find()
-    .populate("postedBy", "_id name Photo")
-    .populate("comments.postedBy", "_id name Photo")
-    .then((posts) => res.json(posts))
-    .catch((err) => console.log(err));
-});
+//API for getting all posts of all users
+router.get("/get-all-posts", requireLogin, getAllPosts);
 
-router.get("/get-my-posts", requireLogin, (req, res) => {
-  POST.find({ postedBy: req.user._id })
-    .populate("postedBy", "_id name Photo")
-    .populate("comments.postedBy", "_id name Photo")
-    .then((posts) => res.json(posts))
-    .catch((err) => console.log(err));
-});
+//API for getting self posts for profile
+router.get("/get-my-posts", requireLogin, getSelfPosts);
 
-router.post("/create-post", requireLogin, (req, res) => {
-  const { body, pic } = req.body;
-  if (!body || !pic) {
-    return res.status(422).json({ error: "Please add all the fields" });
-  }
-  req.user;
-  const post = new POST({
-    body,
-    photo: pic,
-    postedBy: req.user,
-  });
-  post
-    .save()
-    .then((result) => res.json({ post: result }))
-    .catch((error) => console.log(error));
-});
+//API for creating a post
+router.post("/create-post", requireLogin, createPost);
 
 router.delete("/delete-post/:postId", requireLogin, async (req, res) => {
   try {
