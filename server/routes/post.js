@@ -1,12 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
 const requireLogin = require("../middlewares/requireLogin");
-const POST = mongoose.model("POST");
 const {
   getAllPosts,
   getSelfPosts,
   createPost,
+  getFollowingPosts,
+  likePost,
+  unlikePost,
+  commentPost,
+  deletePost,
 } = require("../controller/postController");
 
 //API for getting all posts of all users
@@ -18,115 +21,19 @@ router.get("/get-my-posts", requireLogin, getSelfPosts);
 //API for creating a post
 router.post("/create-post", requireLogin, createPost);
 
-router.delete("/delete-post/:postId", requireLogin, async (req, res) => {
-  try {
-    const post = await POST.findOne({ _id: req.params.postId }).populate(
-      "postedBy",
-      "_id"
-    );
-    if (!post) {
-      return res.status(422).json({ error: "Post not found" });
-    }
-    if (post.postedBy._id.toString() === req.user._id.toString()) {
-      await POST.deleteOne({ _id: req.params.postId });
-      return res.json({ data: post, message: "Successfully deleted" });
-    } else {
-      return res
-        .status(403)
-        .json({ error: "You are not authorized to delete this post" });
-    }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "An error occurred" });
-  }
-});
+//API for deleting a post
+router.delete("/delete-post/:postId", requireLogin, deletePost);
 
-router.put("/like", requireLogin, async (req, res) => {
-  try {
-    const updatedPost = await POST.findByIdAndUpdate(
-      req.body.postId,
-      {
-        $push: {
-          likes: req.user._id,
-        },
-      },
-      { new: true }
-    )
-      .populate("postedBy", "_id name Photo")
-      .populate("comments.postedBy", "_id name Photo");
+//API for liking a post
+router.put("/like", requireLogin, likePost);
 
-    res.json(updatedPost);
-  } catch (err) {
-    res.status(422).json({ error: err });
-  }
-});
+//API for unliking a post
+router.put("/unlike", requireLogin, unlikePost);
 
-router.put("/unlike", requireLogin, async (req, res) => {
-  try {
-    const updatedPost = await POST.findByIdAndUpdate(
-      req.body.postId,
-      {
-        $pull: {
-          likes: req.user._id,
-        },
-      },
-      { new: true }
-    )
-      .populate("postedBy", "_id name Photo")
-      .populate("comments.postedBy", "_id name Photo");
+//API for commenting on a post
+router.put("/comment", requireLogin, commentPost);
 
-    res.json(updatedPost);
-  } catch (err) {
-    res.status(422).json({ error: err });
-  }
-});
-
-router.put("/comment", requireLogin, async (req, res) => {
-  try {
-    const comment = {
-      comment: req.body.text,
-      postedBy: req.user._id,
-    };
-    const updatedPost = await POST.findByIdAndUpdate(
-      req.body.postId,
-      { $push: { comments: comment } },
-      { new: true }
-    )
-      .populate("comments.postedBy", "_id name Photo")
-      .populate("postedBy", "_id name Photo");
-    if (!updatedPost) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-    res.json(updatedPost);
-  } catch (err) {
-    console.error(err);
-    res.status(422).json({ error: "Unable to add comment" });
-  }
-});
-
-router.get("/my-following-post", requireLogin, async (req, res) => {
-  try {
-    if (!req.user?.following || req.user.following.length === 0) {
-      return res.status(400).json({ error: "No following users found" });
-    }
-
-    const posts = await POST.find({ postedBy: { $in: req.user.following } })
-      .populate("postedBy", "_id name Photo")
-      .populate("comments.postedBy", "_id name Photo");
-
-    if (!posts.length) {
-      return res
-        .status(404)
-        .json({ message: "No posts found from following users" });
-    }
-
-    return res.status(200).json(posts);
-  } catch (err) {
-    console.error("Error fetching following posts:", err.message);
-    return res
-      .status(500)
-      .json({ error: "An error occurred while fetching posts" });
-  }
-});
+//API for getting all posts of followed users
+router.get("/my-following-post", requireLogin, getFollowingPosts);
 
 module.exports = router;

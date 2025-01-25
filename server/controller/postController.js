@@ -1,9 +1,12 @@
-const mongoose = require("mongoose");
-const POST = mongoose.model("POST");
 const {
   getAllPostsService,
   getSelfPostsService,
   createPostService,
+  getFollowingPostsService,
+  likePostService,
+  unlikePostService,
+  commentPostService,
+  deletePostService,
 } = require("../services/postService");
 
 const getAllPosts = async (req, res) => {
@@ -43,4 +46,89 @@ const createPost = async (req, res) => {
   }
 };
 
-module.exports = { getAllPosts, getSelfPosts, createPost };
+const getFollowingPosts = async (req, res) => {
+  try {
+    const posts = await getFollowingPostsService({ userId: req.user._id });
+
+    if (posts.error) {
+      return res.status(404).json({ error: posts.error });
+    }
+
+    return res.status(200).json(posts);
+  } catch (err) {
+    console.error("Error fetching following posts:", err.message);
+    return res.status(500).json({ error: "Failed to fetch posts" });
+  }
+};
+
+const likePost = async (req, res) => {
+  try {
+    const updatedPost = await likePostService({
+      postId: req.body.postId,
+      userId: req.user._id,
+    });
+    if (updatedPost.error) {
+      return res.status(422).json({ error: updatedPost.error });
+    }
+    return res.status(200).json(updatedPost);
+  } catch (err) {
+    return res.status(422).json({ error: err });
+  }
+};
+
+const unlikePost = async (req, res) => {
+  try {
+    const updatedPost = await unlikePostService({
+      postId: req.body.postId,
+      userId: req.user._id,
+    });
+    if (updatedPost.error) {
+      return res.status(422).json({ error: updatedPost.error });
+    }
+    return res.status(200).json(updatedPost);
+  } catch (err) {
+    return res.status(422).json({ error: err });
+  }
+};
+
+const commentPost = async (req, res) => {
+  try {
+    const updatedPost = await commentPostService({
+      text: req.body.text,
+      userId: req.user._id,
+      postId: req.body.postId,
+    });
+    if (updatedPost.error) {
+      return res.status(404).json({ error: updatedPost.error });
+    }
+    res.status(200).json(updatedPost);
+  } catch (err) {
+    res.status(422).json({ error: err });
+  }
+};
+
+const deletePost = async (req, res) => {
+  try {
+    const updatedPost = await deletePostService({
+      postId: req.params.postId,
+      userId: req.user._id,
+    });
+    if (updatedPost.error) {
+      return res.status(404).json({ error: updatedPost.error });
+    }
+    res.status(200).json(updatedPost);
+  } catch (err) {
+    res.status(422).json({ error: err });
+  }
+};
+
+module.exports = {
+  getAllPosts,
+  getSelfPosts,
+  createPost,
+  getFollowingPosts,
+  likePost,
+  unlikePost,
+  commentPost,
+  deletePost,
+};
