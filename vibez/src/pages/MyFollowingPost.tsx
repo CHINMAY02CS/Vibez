@@ -12,14 +12,12 @@ import {
   AlertDialogFooter,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { CommentDetails } from "@/interfaces/Profile";
 
 export default function FollowingPosts() {
   const [followingPosts, setFollowingPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -144,10 +142,6 @@ export default function FollowingPosts() {
           return updatedPost;
         }
         return post;
-      });
-      toast({
-        title: "Comment added successfully",
-        variant: "success",
       });
       setFollowingPosts(newData);
       setComments((prev) => ({ ...prev, [id]: "" }));

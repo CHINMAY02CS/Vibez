@@ -4,7 +4,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function CreatePost() {
@@ -13,7 +12,6 @@ export default function CreatePost() {
   const [caption, setCaption] = useState<string>("");
   const [imageUrl, setImageUrl] = useState("");
 
-  const { toast } = useToast();
   const navigate = useNavigate();
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -41,18 +39,10 @@ export default function CreatePost() {
           },
         )
         .then(() => {
-          toast({
-            title: "Posted successfully",
-            variant: "success",
-          });
           navigate("/home");
         })
         .catch((err) => {
           console.log(err);
-          toast({
-            title: err.response.data.error,
-            variant: "destructive",
-          });
         });
     }
   }, [imageUrl]);
