@@ -9,14 +9,12 @@ import PublicLayout from "@/layout/PublicPage";
 import { Button } from "@/components/ui/button";
 import FormInput from "@/components/elements/FormInput";
 import { initialSignInDetails, SignInFormData, signInSchema } from "@/schemas/Auth";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const signUpForm = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: initialSignInDetails,
   });
-  const { toast } = useToast();
   const navigate = useNavigate();
   function onSubmit(data: SignInFormData) {
     axios
@@ -26,20 +24,12 @@ export default function Login() {
       })
       .then((response) => {
         console.log(response);
-        toast({
-          title: "Signed in successfully",
-          variant: "success",
-        });
         localStorage.setItem("jwt", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         navigate("/home");
       })
       .catch((error) => {
         console.error("Error signing in:", error);
-        toast({
-          title: error.response.data.error,
-          variant: "destructive",
-        });
       });
   }
 
