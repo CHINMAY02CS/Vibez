@@ -18,7 +18,7 @@ export default function Login() {
   const navigate = useNavigate();
   function onSubmit(data: SignInFormData) {
     axios
-      .post("https://vercel.com/chinmay02cs-projects/vibez/4uFLzUiqyadEDcNqWVu9Cmfojogx/signin", {
+      .post("https://vibez-emoo-8bbml9t7j-chinmay02cs-projects.vercel.app/signin", {
         email: data.email,
         password: data.password,
       })

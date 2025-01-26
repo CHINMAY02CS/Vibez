@@ -8,8 +8,13 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Frontend's origin
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    credentials: true, // Allow cookies if needed
+  })
+);
 app.use(express.json());
 
 app.use(require("./routes/auth"));
