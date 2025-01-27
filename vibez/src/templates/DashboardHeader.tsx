@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import VibezLogo from "@/assets/VibezLogo.png";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -13,17 +13,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useIsMobile } from "@/lib/hooks";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Logs } from "lucide-react";
+import { Blocks, Home, LogOut, Logs, PictureInPicture, User } from "lucide-react";
 
 export default function DashboardHeader() {
   const navigate = useNavigate();
   const location = useLocation();
+
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (!token) {
       navigate("/login");
     }
-  }, [location.pathname]);
+  }, [location.pathname, navigate]);
 
   function logout() {
     localStorage.removeItem("jwt");
@@ -32,18 +33,19 @@ export default function DashboardHeader() {
   }
   const isMobile = useIsMobile();
   return (
-    <div className="flex items-center justify-between lg:px-8">
-      <img src={VibezLogo} alt="logo" className="h-8 max-w-max" />
-
+    <div className="flex items-center justify-between text-teal-700 lg:px-8">
+      <Link to="/home">
+        <img src={VibezLogo} alt="logo" className="h-8 cursor-pointer max-w-max" />
+      </Link>
       <div className="flex items-center gap-x-8">
         {isMobile ? (
           <MobileMenu logout={logout} />
         ) : (
           <>
-            <Link to="/home">Home</Link>
-            <Link to="/profile">Profile</Link>
-            <Link to="/create-post">Create Post</Link>
-            <Link to="/my-following-posts">Following Posts</Link>
+            <NavMenuItem to="/home" text="Home" />
+            <NavMenuItem to="/profile" text="Profile" />
+            <NavMenuItem to="/create-post" text="Create Post" />
+            <NavMenuItem to="/my-following-posts" text="Following Posts" />
             <AlertDialog>
               <AlertDialogTrigger>
                 <Button>Logout</Button>
@@ -65,21 +67,23 @@ export default function DashboardHeader() {
   );
 }
 
-const MobileMenu = ({ logout }: { logout: any }) => {
+const MobileMenu = ({ logout }: { logout: () => void }) => {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   return (
     <div>
       <Popover open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
         <PopoverTrigger>
-          <Logs className="h-7 w-7" />
+          <Logs className="h-7 w-7 hover:text-teal-600" />
         </PopoverTrigger>
-        <PopoverContent className="grid p-2 mt-4 mr-1 shadow-none w-44 gap-y-2">
-          <Link to="/home">Home</Link>
-          <Link to="/profile">Profile</Link>
-          <Link to="/create-post">Create Post</Link>
-          <Link to="/my-following-posts">Following Posts</Link>
+        <PopoverContent className="grid p-2 px-0 py-0 mt-4 mr-1 text-teal-700 bg-white shadow-none w-44">
+          <MobileMenuItem to="/home" icon={<Home className="w-4 h-4" />} text="Home" />
+          <MobileMenuItem to="/profile" icon={<User className="w-4 h-4" />} text="Profile" />
+          <MobileMenuItem to="/create-post" icon={<PictureInPicture className="w-4 h-4" />} text="Create Post" />
+          <MobileMenuItem to="/my-following-posts" icon={<Blocks className="w-4 h-4" />} text="Following Posts" />
           <AlertDialog>
-            <AlertDialogTrigger className="flex items-start">Logout</AlertDialogTrigger>
+            <AlertDialogTrigger className="flex items-center p-2 px-3 hover:text-blue-800 gap-x-2 hover:bg-gray-100">
+              <LogOut className="w-4 h-4" /> Logout
+            </AlertDialogTrigger>
             <AlertDialogContent className="rounded-xl">
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
@@ -93,5 +97,25 @@ const MobileMenu = ({ logout }: { logout: any }) => {
         </PopoverContent>
       </Popover>
     </div>
+  );
+};
+
+const MobileMenuItem = ({ to, icon, text }: { to: string; icon: ReactNode; text: string }) => {
+  return (
+    <Link
+      to={to}
+      className="flex items-center p-3 border-b border-b-blue-50 hover:text-teal-600 gap-x-2 hover:bg-teal-50"
+    >
+      {icon}
+      {text}
+    </Link>
+  );
+};
+
+const NavMenuItem = ({ to, text }: { to: string; text: string }) => {
+  return (
+    <Link to={to} className="hover:text-teal-600 hover:underline">
+      {text}
+    </Link>
   );
 };
