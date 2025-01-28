@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Post } from "@/Interfaces";
-import { Heart, Smile, UserCircle, X } from "lucide-react";
+import { Post, User } from "@/Interfaces";
+import { Heart, UserCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -86,11 +86,7 @@ export default function Home() {
               {/* User pic and name */}
               <CardHeader className="p-4 border-b">
                 <CardTitle className="flex items-center gap-x-4">
-                  <UserIconPic
-                    path={postOwner?._id}
-                    src={postOwner?.Photo || ""}
-                    showImage={postOwner?.Photo ? true : false}
-                  />
+                  <UserIconPic owner={postOwner} />
                   <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
                     {postOwner?.name}
                   </p>
@@ -120,11 +116,7 @@ export default function Home() {
                       </AlertDialogCancel>
                     </div>
                     <div className="flex items-center p-2 -mt-6 border border-gray-200 rounded-sm gap-x-4">
-                      <UserIconPic
-                        showImage={postOwner?.Photo ? true : false}
-                        src={post.postedBy.Photo || ""}
-                        path={postOwner?._id}
-                      />
+                      <UserIconPic owner={postOwner} />
                       <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
                         {postOwner?.name}
                       </p>
@@ -139,11 +131,7 @@ export default function Home() {
                               const commentOwner = comment?.postedBy;
                               return (
                                 <div className="flex items-center p-2 gap-x-4" key={index}>
-                                  <UserIconPic
-                                    showImage={commentOwner?.Photo ? true : false}
-                                    src={comment.postedBy.Photo || ""}
-                                    path={commentOwner?._id}
-                                  />
+                                  <UserIconPic owner={commentOwner} />
                                   <div>
                                     <p
                                       className="text-sm font-bold cursor-pointer"
@@ -158,16 +146,12 @@ export default function Home() {
                             })}
                         </div>
                         <div className="flex items-center w-full p-3 px-1 gap-x-4">
-                          <div className="flex items-center gap-x-1">
-                            <LikeButton
-                              totalLikes={post?.likes?.length || "0"}
-                              isLiked={isLiked}
-                              onClick={() => (isLiked ? unlikePost(postId) : likePost(postId))}
-                            />
-                            {/* <p className="mt-1.5 text-xs">{post?.likes ? post.likes.length : "0"}</p> */}
-                          </div>
+                          <LikeButton
+                            totalLikes={post?.likes?.length || "0"}
+                            isLiked={isLiked}
+                            onClick={() => (isLiked ? unlikePost(postId) : likePost(postId))}
+                          />
                           <div className="flex items-center w-full">
-                            <Smile className="w-4 h-4 mr-2 cursor-pointer" />
                             <CommentInput
                               value={comments[postId] || ""}
                               onChange={(e) =>
@@ -186,8 +170,7 @@ export default function Home() {
                   </AlertDialogContent>
                 </AlertDialog>
               </CardFooter>
-              <div className="flex items-center w-full p-4 pt-0">
-                <Smile className="w-6 h-6 mr-2 cursor-pointer" />
+              <div className="p-4 pt-0">
                 <CommentInput
                   value={comments[postId] || ""}
                   onChange={(e) =>
@@ -206,14 +189,19 @@ export default function Home() {
   );
 }
 
-const UserIconPic = ({ showImage, src, path }: { showImage: boolean; src: string; path: string }) => {
+const UserIconPic = ({ owner }: { owner: User }) => {
   const navigate = useNavigate();
   return (
     <>
-      {showImage ? (
-        <img src={src} alt="" className={userPicClass} onClick={() => navigate(`/user/${path}`)} />
+      {owner?.Photo ? (
+        <img
+          src={owner?.Photo || ""}
+          alt="image"
+          className={userPicClass}
+          onClick={() => navigate(`/user/${owner?._id}`)}
+        />
       ) : (
-        <UserCircle className={userPicClass} onClick={() => navigate(`/user/${path}`)} />
+        <UserCircle className={userPicClass} onClick={() => navigate(`/user/${owner?._id}`)} />
       )}
     </>
   );
