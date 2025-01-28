@@ -174,7 +174,6 @@ export default function Profile() {
       const post = myPosts.find((p: Post) => p._id === id);
       if (post) {
         setOpenPost(post);
-
         setAlertOpen(true);
       } else {
         console.error("Post not found!");

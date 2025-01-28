@@ -14,11 +14,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { CommentDetails } from "@/interfaces/Profile";
 import { addCommentService, getAllPostsService, likePostService, unlikePostService } from "@/services/posts";
+import LoadingScreen from "@/components/elements/LoadingScreen";
 
 export default function Home() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
+  const [loadingData, setLoadingData] = useState<boolean | null>(true);
 
   function updatePostsData(updatedPost: Post) {
     const newData = allPosts.map((post) => {
@@ -34,23 +36,15 @@ export default function Home() {
     try {
       const posts = await getAllPostsService();
       setAllPosts(posts);
+      setLoadingData(false);
     } catch (err) {
       console.error(err);
     }
   };
 
-  async function likePost(id: string) {
+  async function handleLikePost(id: string, isLiked: boolean) {
     try {
-      const updatedPost = await likePostService(id);
-      updatePostsData(updatedPost);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function unlikePost(id: string) {
-    try {
-      const updatedPost = await unlikePostService(id);
+      const updatedPost = isLiked ? await unlikePostService(id) : await likePostService(id);
       updatePostsData(updatedPost);
     } catch (error) {
       console.error(error);
@@ -75,116 +69,122 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center gap-y-6">
-      {allPosts.length > 0 &&
-        allPosts.map((post) => {
-          const postId = post?._id;
-          const postOwner = post?.postedBy;
-          const isLiked = post?.likes?.includes(userId) || false;
-          const filteredComments = post?.comments?.filter((comment: CommentDetails) => comment.comment);
-          return (
-            <Card className="md:w-120" key={post._id}>
-              {/* User pic and name */}
-              <CardHeader className="p-4 border-b">
-                <CardTitle className="flex items-center gap-x-4">
-                  <UserIconPic owner={postOwner} />
-                  <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
-                    {postOwner?.name}
-                  </p>
-                </CardTitle>
-              </CardHeader>
-              {/* Post Card */}
-              <CardContent className="p-0 m-0 h-80">
-                <img className="h-80 w-120" src={post?.photo} alt="postedPic" />
-              </CardContent>
-              <CardFooter className="flex-col items-start p-4 gap-y-2">
-                <LikeButton
-                  totalLikes={post?.likes?.length || "0"}
-                  showLabel
-                  isLiked={isLiked}
-                  onClick={() => (isLiked ? unlikePost(postId) : likePost(postId))}
-                />
-                {post?.body}
-                {/* Post details dialog */}
-                <AlertDialog>
-                  <AlertDialogTrigger className="text-xs text-gray-500 hover:underline">
-                    {post.comments?.length > 0 ? `View all ${filteredComments.length} comments` : null}
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="px-3 py-0 rounded-lg max-h-176 lg:max-w-240 lg:max-h-none">
-                    <div className="flex items-end justify-end">
-                      <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max">
-                        <X className="w-4 h-4" />{" "}
-                      </AlertDialogCancel>
-                    </div>
-                    <div className="flex items-center p-2 -mt-6 border border-gray-200 rounded-sm gap-x-4">
+      {loadingData ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          {allPosts.length > 0 ? (
+            allPosts.map((post) => {
+              const postId = post?._id;
+              const postOwner = post?.postedBy;
+              const isLiked = post?.likes?.includes(userId) || false;
+              const filteredComments = post?.comments?.filter((comment: CommentDetails) => comment.comment);
+              return (
+                <Card className="md:w-120" key={post._id}>
+                  {/* User pic and name */}
+                  <CardHeader className="p-4 border-b">
+                    <CardTitle className="flex items-center gap-x-4">
                       <UserIconPic owner={postOwner} />
                       <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
                         {postOwner?.name}
                       </p>
-                    </div>
-                    <div className="grid items-start lg:grid-cols-2 gap-x-4">
-                      <img className="h-80 w-120" src={post?.photo} />
-                      {/* right card */}
-                      <div>
-                        <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 lg:mt-0 max-h-52 lg:max-h-76">
-                          {post.comments.length > 0 &&
-                            filteredComments.map((comment: CommentDetails, index) => {
-                              const commentOwner = comment?.postedBy;
-                              return (
-                                <div className="flex items-center p-2 gap-x-4" key={index}>
-                                  <UserIconPic owner={commentOwner} />
-                                  <div>
-                                    <p
-                                      className="text-sm font-bold cursor-pointer"
-                                      onClick={() => navigate(`/user/${commentOwner?._id}`)}
-                                    >
-                                      {commentOwner?.name}
-                                    </p>
-                                    <p className="text-xs cursor-pointer">{comment.comment}</p>
-                                  </div>
-                                </div>
-                              );
-                            })}
+                    </CardTitle>
+                  </CardHeader>
+                  {/* Post Card */}
+                  <CardContent className="p-0 m-0 h-80">
+                    <img className="h-80 w-120" src={post?.photo} alt="postedPic" />
+                  </CardContent>
+                  <CardFooter className="flex-col items-start p-4 gap-y-2">
+                    <LikeButton
+                      totalLikes={post?.likes?.length || "0"}
+                      showLabel
+                      isLiked={isLiked}
+                      onClick={() => handleLikePost(postId, isLiked)}
+                    />
+                    {post?.body}
+                    {/* Post details dialog */}
+                    <AlertDialog>
+                      <AlertDialogTrigger className="text-xs text-gray-500 hover:underline">
+                        {post.comments?.length > 0 ? `View all ${filteredComments.length} comments` : null}
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="px-3 py-0 rounded-lg max-h-176 lg:max-w-240 lg:max-h-none">
+                        <div className="flex items-end justify-end">
+                          <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max">
+                            <X className="w-4 h-4" />{" "}
+                          </AlertDialogCancel>
                         </div>
-                        <div className="flex items-center w-full p-3 px-1 gap-x-4">
-                          <LikeButton
-                            totalLikes={post?.likes?.length || "0"}
-                            isLiked={isLiked}
-                            onClick={() => (isLiked ? unlikePost(postId) : likePost(postId))}
-                          />
-                          <div className="flex items-center w-full">
-                            <CommentInput
-                              value={comments[postId] || ""}
-                              onChange={(e) =>
-                                setComments((prev) => ({
-                                  ...prev,
-                                  [postId]: e.target.value,
-                                }))
-                              }
-                              onSubmit={() => addComment(comments[postId], postId)}
-                            />
+                        <div className="flex items-center p-2 -mt-6 border border-gray-200 rounded-sm gap-x-4">
+                          <UserIconPic owner={postOwner} />
+                          <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
+                            {postOwner?.name}
+                          </p>
+                        </div>
+                        <div className="grid items-start lg:grid-cols-2 gap-x-4">
+                          <img className="h-80 w-120" src={post?.photo} />
+                          <div>
+                            <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 lg:mt-0 max-h-52 lg:max-h-76">
+                              {post.comments.length > 0 &&
+                                filteredComments.map((comment: CommentDetails, index) => {
+                                  const commentOwner = comment?.postedBy;
+                                  return (
+                                    <div className="flex items-center p-2 gap-x-4" key={index}>
+                                      <UserIconPic owner={commentOwner} />
+                                      <div>
+                                        <p
+                                          className="text-sm font-bold cursor-pointer"
+                                          onClick={() => navigate(`/user/${commentOwner?._id}`)}
+                                        >
+                                          {commentOwner?.name}
+                                        </p>
+                                        <p className="text-xs cursor-pointer">{comment.comment}</p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                            <div className="flex items-center w-full p-3 px-1 gap-x-4">
+                              <LikeButton
+                                totalLikes={post?.likes?.length || "0"}
+                                isLiked={isLiked}
+                                onClick={() => handleLikePost(postId, isLiked)}
+                              />
+                              <CommentInput
+                                value={comments[postId] || ""}
+                                onChange={(e) =>
+                                  setComments((prev) => ({
+                                    ...prev,
+                                    [postId]: e.target.value,
+                                  }))
+                                }
+                                onSubmit={() => addComment(comments[postId], postId)}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    <AlertDialogFooter className="hidden" />
-                  </AlertDialogContent>
-                </AlertDialog>
-              </CardFooter>
-              <div className="p-4 pt-0">
-                <CommentInput
-                  value={comments[postId] || ""}
-                  onChange={(e) =>
-                    setComments((prev) => ({
-                      ...prev,
-                      [postId]: e.target.value,
-                    }))
-                  }
-                  onSubmit={() => addComment(comments[postId], postId)}
-                />
-              </div>
-            </Card>
-          );
-        })}
+                        <AlertDialogFooter className="hidden" />
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </CardFooter>
+                  <div className="p-4 pt-0">
+                    <CommentInput
+                      value={comments[postId] || ""}
+                      onChange={(e) =>
+                        setComments((prev) => ({
+                          ...prev,
+                          [postId]: e.target.value,
+                        }))
+                      }
+                      onSubmit={() => addComment(comments[postId], postId)}
+                    />
+                  </div>
+                </Card>
+              );
+            })
+          ) : (
+            <div className="mt-6 font-medium">No Posts to display</div>
+          )}
+        </>
+      )}
     </div>
   );
 }
