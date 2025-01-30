@@ -98,7 +98,7 @@ export default function Profile() {
     <LoadingScreen />
   ) : (
     <>
-      <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
+      <div className="flex flex-col items-center justify-center text-white lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
         <div>
           {profileDetails.Photo ? (
             <img src={profileDetails?.Photo} alt="profile pic" className="w-40 h-40 rounded-full cursor-pointer" />
