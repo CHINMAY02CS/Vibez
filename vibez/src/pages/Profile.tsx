@@ -1,7 +1,6 @@
-import axios from "axios";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
-import { Heart, Trash, Smile, X, UserCircle } from "lucide-react";
+import { Trash, X, UserCircle, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Post } from "@/Interfaces";
@@ -13,161 +12,39 @@ export default function Profile() {
   const [profileDetails, setProfileDetails] = useState<ProfileDetails>(initialProfileDetails);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
   const [openProfilePicDialog, setOpenProfilePicDialog] = useState(false);
-  const user = localStorage.getItem("user");
+  const [openPost, setOpenPost] = useState<Post>();
   const [fetch, setFetch] = useState(false);
+  const [loadingData, setLoadingData] = useState<boolean | null>(true);
+
+  const fetchUserPosts = async () => {
+    try {
+      const userPostsAll = await fetchUserPostsService();
+      const selfPostsAll = await fetchSelfPostsService();
+      setProfileDetails(userPostsAll?.user);
+      setMyPosts(selfPostsAll);
+      setLoadingData(false);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserPosts = async () => {
-      try {
-        if (user) {
-          const response = await axios.get(`http://localhost:5000/user/${JSON.parse(user)?._id}`);
-          setProfileDetails(response.data?.user);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     fetchUserPosts();
   }, [fetch]);
-  useEffect(() => {
-    axios
-      .get(
-        "http://localhost:5000/get-my-posts",
-
-        {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-            "Content-Type": "application/json",
-          },
-        },
-      )
-      .then((res) => {
-        setMyPosts(res.data);
-      })
-      .catch((err) => console.log(err));
-  }, []);
-
-  async function likePost(id: string) {
-    try {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        console.error("Authorization token not found!");
-        return;
-      }
-
-      const response = await axios.put(
-        "http://localhost:5000/like",
-        { postId: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      const updatedPost = response.data;
-
-      const newData = myPosts.map((post: Post) => {
-        if (post._id === updatedPost._id) {
-          return updatedPost;
-        }
-        return post;
-      });
-
-      setMyPosts(newData);
-
-      if (openPost?._id === id) {
-        setOpenPost(updatedPost);
-      }
-    } catch (error) {
-      console.error("Error liking post:", error);
-    }
-  }
-
-  async function unlikePost(id: string) {
-    try {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        console.error("Authorization token not found!");
-        return;
-      }
-
-      const response = await axios.put(
-        "http://localhost:5000/unlike",
-        { postId: id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      const updatedPost = response.data;
-
-      const newData = myPosts.map((post: Post) => {
-        if (post._id === updatedPost._id) {
-          return updatedPost;
-        }
-        return post;
-      });
-
-      setMyPosts(newData);
-
-      if (openPost?._id === id) {
-        setOpenPost(updatedPost);
-      }
-    } catch (error) {
-      console.error("Error liking post:", error);
-    }
-  }
 
   async function addComment(text: string, id: string) {
     try {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        console.error("Authorization token not found!");
-        return;
-      }
+      const updatedPost = await commentPostService(id, text);
 
-      const response = await axios.put(
-        "http://localhost:5000/comment",
-        {
-          text: text,
-          postId: id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      const updatedPost = response.data;
-
-      const newData = myPosts.map((post: Post) => {
-        if (post._id === updatedPost._id) {
-          return updatedPost;
-        }
-        return post;
-      });
-
-      setMyPosts(newData);
-
+      updatePostsData(updatedPost);
       if (openPost?._id === id) {
         setOpenPost(updatedPost);
       }
-
       setComments((prev) => ({ ...prev, [id]: "" }));
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   }
-
-  const [openPost, setOpenPost] = useState<Post>();
 
   const setPostInDialog = async (id: string) => {
     try {
@@ -185,42 +62,73 @@ export default function Profile() {
 
   const userName = JSON.parse(localStorage.getItem("user") ?? "").name;
 
-  return (
+  function updatePostsData(updatedPost: Post) {
+    const newData = myPosts.map((post) => {
+      if (post._id === updatedPost._id) {
+        return updatedPost;
+      }
+      return post;
+    });
+    setMyPosts(newData);
+  }
+
+  async function deletePost(postId: string) {
+    try {
+      const updatedPost = await deletePostService(postId);
+      updatePostsData(updatedPost);
+      setAlertOpen(false);
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  }
+
+  async function handleLikePost(id: string, isLiked: boolean) {
+    try {
+      const updatedPost = isLiked ? await unlikePostService(id) : await likePostService(id);
+      updatePostsData(updatedPost);
+      if (openPost?._id === id) {
+        setOpenPost(updatedPost);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  return loadingData ? (
+    <LoadingScreen />
+  ) : (
     <>
       <div className="flex flex-col items-center justify-center lg:flex-row lg:justify-between lg:w-1/2 lg:max-w-128 lg:mx-auto lg:gap-x-8">
-        {profileDetails.Photo ? (
-          <img
-            src={profileDetails.Photo}
-            alt="profile pic"
-            className="w-40 h-40 rounded-full cursor-pointer"
-            onClick={() => setOpenProfilePicDialog(true)}
-          />
-        ) : (
-          <UserCircle
-            className="w-40 h-40 rounded-full cursor-pointer fill-white"
-            onClick={() => setOpenProfilePicDialog(true)}
-          />
-        )}
+        <div>
+          {profileDetails.Photo ? (
+            <img src={profileDetails?.Photo} alt="profile pic" className="w-40 h-40 rounded-full cursor-pointer" />
+          ) : (
+            <UserCircle className="w-40 h-40 rounded-full cursor-pointer fill-white" />
+          )}
+          <div className="flex justify-end -mt-6">
+            <Pencil className="hover:cursor-pointer" onClick={() => setOpenProfilePicDialog(true)} />
+          </div>
+        </div>
 
         <div className="mt-2">
           <p className="text-3xl font-bold text-center lg:text-left">{userName}</p>
-          <div className="flex items-center w-full mt-4 gap-x-4">
-            <p className="text-lg font-semibold">{myPosts.length} posts</p>
-            <p className="text-lg font-semibold">{profileDetails?.followers?.length || 0} followers</p>
-            <p className="text-lg font-semibold">{profileDetails?.following?.length || 0} following</p>
+          <div className="flex items-center w-full mt-4 text-lg font-semibold gap-x-4">
+            <p>{myPosts.length} posts</p>
+            <p>{profileDetails?.followers?.length || 0} followers</p>
+            <p>{profileDetails?.following?.length || 0} following</p>
           </div>
         </div>
       </div>
       <div className="grid items-center justify-center grid-cols-2 gap-4 px-6 pt-4 mx-auto mt-16 border-t-2 md:max-w-max lg:grid-cols-4 lg:min-w-160">
         {myPosts.length > 0 &&
-          myPosts.map((post: Post, index) => {
+          myPosts.map((post: Post) => {
             return (
-              <div key={index}>
+              <div key={post._id}>
                 <img
                   src={post?.photo}
-                  alt=""
+                  alt="postPic"
                   className="duration-300 cursor-pointer max-w-40 max-h-40 hover:scale-105"
-                  id={String(index)}
+                  id={post._id}
                   onClick={() => setPostInDialog(post._id)}
                 />
               </div>
@@ -232,13 +140,11 @@ export default function Profile() {
           alertOpen={alertOpen}
           setAlertOpen={setAlertOpen}
           post={openPost}
-          myPosts={myPosts}
-          setMyPosts={setMyPosts}
-          likePost={likePost}
+          deletePost={deletePost}
           addComment={addComment}
           comments={comments}
-          unlikePost={unlikePost}
           setComments={setComments}
+          handleLikePost={handleLikePost}
         />
       )}
       <ProfilePicDialog
@@ -255,131 +161,77 @@ const PostDetails = ({
   alertOpen,
   setAlertOpen,
   post,
-  likePost,
-  myPosts,
-  setMyPosts,
+  deletePost,
   addComment,
   comments,
   setComments,
-  unlikePost,
+  handleLikePost,
 }: {
   alertOpen: boolean;
   setAlertOpen: Dispatch<SetStateAction<boolean>>;
   post: Post;
-  comments: any;
-  setComments: any;
-  likePost: (id: string) => void;
-  unlikePost: (id: string) => void;
+  deletePost: (postId: string) => void;
+  comments: { [key: string]: string };
+  setComments: Dispatch<SetStateAction<{ [key: string]: string }>>;
+  handleLikePost: (id: string, isLiked: boolean) => void;
   addComment: (text: string, id: string) => void;
-  myPosts: Post[];
-  setMyPosts: Dispatch<SetStateAction<Post[]>>;
 }) => {
-  async function deletePost(postId: string) {
-    try {
-      const token = localStorage.getItem("jwt");
-      if (!token) {
-        console.error("Authorization token not found!");
-        return;
-      }
-
-      const response = await axios.delete(`http://localhost:5000/delete-post/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      const updatedPost = response.data;
-
-      const newData = myPosts.map((post: Post) => {
-        if (post._id === updatedPost.data._id) {
-          return updatedPost;
-        }
-        return post;
-      });
-
-      setMyPosts(newData);
-      setAlertOpen(false);
-    } catch (error) {
-      console.error("Error liking post:", error);
-    }
-  }
   const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
   const navigate = useNavigate();
+  const postOwner = post?.postedBy;
+  const filteredComments = post?.comments?.filter((comment: CommentDetails) => comment.comment);
 
+  function showUser(path: string) {
+    navigate(`/user/${path}`);
+    setAlertOpen(false);
+  }
   return (
     <AlertDialog open={alertOpen} onOpenChange={setAlertOpen} key={post._id}>
-      <AlertDialogContent className="px-3 py-0 rounded-lg max-h-176 lg:max-w-240 lg:max-h-none">
+      <AlertDialogContent className="gap-0 px-3 py-0 rounded-lg max-h-176 lg:max-w-240 lg:max-h-none">
         <div className="flex items-end justify-end">
           <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max">
             <X className="w-4 h-4" />{" "}
           </AlertDialogCancel>
         </div>
-        <div className="grid items-start lg:grid-cols-2 gap-x-4">
-          <div className="flex items-center justify-between p-2 mb-2 -mt-2 border border-gray-200 rounded-sm lg:hidden lg:mt-0">
-            <div
-              className="flex items-center gap-x-4"
-              onClick={() => {
-                navigate(`/user/${post?.postedBy?._id}`);
-                setAlertOpen(false);
-              }}
-            >
-              {post?.postedBy?.Photo ? (
-                <img src={post.postedBy.Photo} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
-              ) : (
-                <UserCircle className="w-8 h-8 rounded-full cursor-pointer" />
-              )}
-              <p className="cursor-pointer">{post?.postedBy?.name}</p>
-            </div>
-            <Trash onClick={() => deletePost(post._id)} className="cursor-pointer hover:text-red-600" />
+        <div className="flex items-center justify-between p-2 mb-2 -mt-2 border border-gray-200 rounded-sm lg:mt-0">
+          <div
+            className="flex items-center gap-x-2"
+            onClick={() => {
+              navigate(`/user/${postOwner?._id}`);
+              setAlertOpen(false);
+            }}
+          >
+            <UserIconPic owner={postOwner} />
+            <p className="cursor-pointer">{postOwner?.name}</p>
           </div>
+          <Trash onClick={() => deletePost(post._id)} className="cursor-pointer hover:text-red-600" />
+        </div>
+        <div className="grid items-start lg:grid-cols-2 gap-x-4">
           <img className="cursor-pointer h-80 w-120" src={post?.photo} />
           {/* right card */}
           <div>
-            <div className="items-center justify-between hidden p-2 mt-2 border border-gray-200 rounded-sm lg:flex lg:mt-0">
-              <div className="flex items-center gap-x-4">
-                {post?.postedBy?.Photo ? (
-                  <img src={post.postedBy.Photo} alt="" className="w-8 h-8 rounded-full cursor-pointer" />
-                ) : (
-                  <UserCircle className="w-8 h-8 rounded-full cursor-pointer" />
-                )}
-                <p className="cursor-pointer">{post?.postedBy?.name}</p>
-              </div>
-              <Trash onClick={() => deletePost(post._id)} className="cursor-pointer hover:text-red-600" />
-            </div>
             {post?.comments?.length > 0 && (
-              <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 max-h-52 lg:max-h-76">
-                {post.comments.map((comment: CommentDetails, index: number) => {
+              <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 lg:mt-0 max-h-52 lg:max-h-76">
+                {filteredComments.map((comment: CommentDetails, index: number) => {
+                  const commentOwner = comment?.postedBy;
                   return (
                     <div className="flex items-center p-2 gap-x-4" id={String(index)} key={index}>
-                      {comment?.postedBy?.Photo ? (
+                      {commentOwner?.Photo ? (
                         <img
-                          src={comment?.postedBy?.Photo}
+                          src={commentOwner?.Photo}
                           alt=""
                           className="w-8 h-8 rounded-full cursor-pointer"
-                          onClick={() => {
-                            navigate(`/user/${comment?.postedBy?._id}`);
-                            setAlertOpen(false);
-                          }}
+                          onClick={() => showUser(commentOwner?._id)}
                         />
                       ) : (
                         <UserCircle
                           className="w-8 h-8 rounded-full cursor-pointer"
-                          onClick={() => {
-                            navigate(`/user/${comment?.postedBy?._id}`);
-                            setAlertOpen(false);
-                          }}
+                          onClick={() => showUser(commentOwner?._id)}
                         />
                       )}
                       <div>
-                        <p
-                          className="text-sm font-bold cursor-pointer"
-                          onClick={() => {
-                            navigate(`/user/${comment?.postedBy?._id}`);
-                            setAlertOpen(false);
-                          }}
-                        >
-                          {comment?.postedBy?.name}
+                        <p className="text-sm font-bold cursor-pointer" onClick={() => showUser(commentOwner?._id)}>
+                          {commentOwner?.name}
                         </p>
                         <p className="text-xs">{comment.comment}</p>
                       </div>
@@ -389,37 +241,28 @@ const PostDetails = ({
               </div>
             )}
             <div className="flex items-center w-full p-3 px-1 gap-x-4">
-              <div className="flex items-center gap-x-1">
-                {post?.likes?.includes(userId) ? (
-                  <Heart
-                    className="w-6 h-6 font-normal text-red-600 cursor-pointer fill-red-600"
-                    onClick={() => unlikePost(post._id)}
-                  />
-                ) : (
-                  <Heart className="w-6 h-6 font-normal cursor-pointer" onClick={() => likePost(post._id)} />
-                )}
-                <p className="mt-1.5 text-xs">{post?.likes ? post.likes.length : "0"}</p>
-              </div>
-              <div className="flex items-center w-full">
-                <Smile className="w-4 h-4 mr-2 cursor-pointer" />
-                <div className="flex items-center w-full space-x-2">
-                  <Input
-                    type="text"
-                    placeholder="Add your comment . . ."
-                    value={comments[post._id] || ""}
-                    className="h-8 border shadow-none placeholder:text-xs"
-                    onChange={(e) =>
-                      setComments((prev) => ({
-                        ...prev,
-                        [post._id]: e.target.value,
-                      }))
-                    }
-                  />
-                  <Button type="submit" onClick={() => addComment(comments[post._id], post._id)} className="h-8">
-                    Add
-                  </Button>
-                </div>{" "}
-              </div>
+              <LikeButton
+                totalLikes={post?.likes?.length || "0"}
+                isLiked={post?.likes?.includes(userId) || false}
+                onClick={() => handleLikePost(post._id, post?.likes?.includes(userId) || false)}
+              />
+              <div className="flex items-center w-full space-x-2">
+                <Input
+                  type="text"
+                  placeholder="Add your comment . . ."
+                  value={comments[post._id] || ""}
+                  className="h-8 border shadow-none placeholder:text-xs"
+                  onChange={(e) =>
+                    setComments((prev) => ({
+                      ...prev,
+                      [post._id]: e.target.value,
+                    }))
+                  }
+                />
+                <Button type="submit" onClick={() => addComment(comments[post._id], post._id)} className="h-8">
+                  Comment
+                </Button>
+              </div>{" "}
             </div>
           </div>
         </div>
@@ -433,6 +276,17 @@ import { AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/compo
 import { CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
+import { likePostService, unlikePostService } from "@/services/posts";
+import { LikeButton, UserIconPic } from "./Home";
+import {
+  commentPostService,
+  deletePostService,
+  fetchSelfPostsService,
+  fetchUserPostsService,
+  removeProfilePicService,
+  uploadProfilePicService,
+} from "@/services/profile";
+import LoadingScreen from "@/components/elements/LoadingScreen";
 
 const ProfilePicDialog = ({
   openProfilePicDialog,
@@ -474,60 +328,34 @@ const ProfilePicDialog = ({
       .catch((err) => console.log(err));
   }
 
-  function savePic() {
-    axios
-      .put(
-        "http://localhost:5000/upload-profile-pic",
-        JSON.stringify({
-          pic: imageUrl,
-        }),
-        {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-            "Content-Type": "application/json",
-          },
-        },
-      )
-      .then((data) => {
-        console.log(data.data);
+  async function savePic() {
+    try {
+      const data = await uploadProfilePicService(imageUrl);
+      if (data) {
         setOpenProfilePicDialog(false);
         setSelectedImage(null);
         setPhoto(null);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setFetch((prev) => !prev);
-      });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setFetch((prev) => !prev);
+    }
   }
 
-  function removePic() {
-    axios
-      .put(
-        "http://localhost:5000/upload-profile-pic",
-        JSON.stringify({
-          pic: null,
-        }),
-        {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("jwt"),
-            "Content-Type": "application/json",
-          },
-        },
-      )
-      .then((data) => {
-        console.log(data);
+  async function removePic() {
+    try {
+      const data = await removeProfilePicService();
+      if (data) {
         setOpenProfilePicDialog(false);
         setSelectedImage(null);
         setPhoto(null);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setFetch((prev) => !prev);
-      });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setFetch((prev) => !prev);
+    }
   }
 
   useEffect(() => {
@@ -567,9 +395,7 @@ const ProfilePicDialog = ({
           )}
         </CardContent>
         {saveProfilePic ? (
-          <>
-            <Button onClick={() => setUploadPic(true)}>Save</Button>
-          </>
+          <Button onClick={() => setUploadPic(true)}>Save</Button>
         ) : (
           <>
             <Label
@@ -578,11 +404,9 @@ const ProfilePicDialog = ({
             >
               Add a New Profile Pic
             </Label>
-
             <Input type="file" name="image" id="fileInput" className="hidden" onChange={handleImageChange} />
           </>
         )}
-
         <AlertDialogFooter>
           <AlertDialogCancel
             onClick={() => {

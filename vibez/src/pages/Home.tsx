@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Post, User } from "@/Interfaces";
-import { Heart, UserCircle, X } from "lucide-react";
+import { Bookmark, Heart, MessageCircle, UserCircle, X } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
@@ -89,9 +89,9 @@ export default function Home() {
               const isLiked = post?.likes?.includes(userId) || false;
               const filteredComments = post?.comments?.filter((comment: CommentDetails) => comment.comment);
               return (
-                <Card className="md:w-120" key={post._id}>
+                <Card className="pb-4 border-none md:w-144 rounded-xl" key={post._id}>
                   {/* User pic and name */}
-                  <CardHeader className="p-4 border-b">
+                  <CardHeader className="p-4">
                     <CardTitle className="flex items-center gap-x-4">
                       <UserIconPic owner={postOwner} />
                       <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
@@ -100,26 +100,39 @@ export default function Home() {
                     </CardTitle>
                   </CardHeader>
                   {/* Post Card */}
-                  <CardContent className="p-0 m-0 h-80">
-                    <img className="h-80 w-120" src={post?.photo} alt="postedPic" />
+                  <CardContent className="flex items-center justify-center p-0 m-0 h-80">
+                    <img className="mx-4 rounded-lg h-80 w-144" src={post?.photo} alt="postedPic" />
                   </CardContent>
-                  <CardFooter className="flex-col items-start p-4 gap-y-2">
-                    <LikeButton
-                      totalLikes={post?.likes?.length || "0"}
-                      showLabel
-                      isLiked={isLiked}
-                      onClick={() => handleLikePost(postId, isLiked)}
-                    />
-                    {post?.body}
-                    <p
+                  <CardFooter className="flex-col items-start w-full p-4 gap-y-2">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-x-4">
+                        <LikeButton
+                          totalLikes={post?.likes?.length || "0"}
+                          isLiked={isLiked}
+                          onClick={() => handleLikePost(postId, isLiked)}
+                        />
+                        <CommentButton
+                          totalComments={filteredComments.length > 0 ? filteredComments.length : ""}
+                          onClick={() => handleOpenPost(postId)}
+                        />
+                      </div>
+                      <Bookmark className="cursor-pointer" />
+                    </div>
+                    <div className="flex items-center mt-2 text-sm gap-x-2">
+                      <p className="font-semibold cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
+                        {postOwner?.name}
+                      </p>
+                      <p>{post?.body}</p>
+                    </div>
+                    {/* <p
                       onClick={() => handleOpenPost(postId)}
                       className="text-xs text-gray-700 cursor-pointer hover:underline"
                     >
                       {post.comments?.length > 0 ? `View all ${filteredComments.length} comments` : null}
-                    </p>
+                    </p> */}
                   </CardFooter>
-                  <CommentInput
-                    className="p-3 pt-0"
+                  {/* <CommentInput
+                    className="p-3 pt-0 mb-2"
                     value={comments[postId] || ""}
                     onChange={(e) =>
                       setComments((prev) => ({
@@ -128,7 +141,7 @@ export default function Home() {
                       }))
                     }
                     onSubmit={() => addComment(comments[postId], postId)}
-                  />
+                  /> */}
                 </Card>
               );
             })
@@ -175,22 +188,18 @@ const PostDetailsDialog = ({
 
   return (
     <AlertDialog open={postDialog} onOpenChange={setPostDialog}>
-      <AlertDialogContent className="px-3 py-0 rounded-lg max-h-176 lg:max-w-240 lg:max-h-none">
-        <div className="flex items-end justify-end">
-          <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max">
-            <X className="w-4 h-4" />{" "}
-          </AlertDialogCancel>
+      <AlertDialogContent className="gap-0 px-3 py-0 text-gray-400 border-none bg-gray-950 rounded-2xl md:w-136 lg:max-h-none">
+        <div className="flex items-center justify-between py-4">
+          <p className="w-full text-sm font-semibold text-center">Comments</p>
+          {/* <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max"> */}
+          <X className="w-4 h-4 cursor-pointer hover:text-white" onClick={() => setPostDialog(false)} />{" "}
+          {/* </AlertDialogCancel> */}
         </div>
-        <div className="flex items-center p-2 -mt-6 border border-gray-200 rounded-sm gap-x-4">
-          <UserIconPic owner={postOwner} />
-          <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
-            {postOwner?.name}
-          </p>
-        </div>
-        <div className="grid items-start lg:grid-cols-2 gap-x-4">
-          <img className="h-80 w-120" src={post?.photo} />
+
+        <div className="grid items-start gap-x-4">
+          {/* <img className="h-80 w-120" src={post?.photo} /> */}
           <div>
-            <div className="pb-2 mt-2 overflow-y-auto border border-gray-100 lg:mt-0 max-h-52 lg:max-h-76">
+            <div className="flex flex-col pb-2 mt-2 overflow-y-auto gap-y-3 lg:mt-0 max-h-90 md:max-h-144">
               {post.comments.length > 0 &&
                 filteredComments.map((comment: CommentDetails, index) => {
                   const commentOwner = comment?.postedBy;
@@ -210,7 +219,7 @@ const PostDetailsDialog = ({
                   );
                 })}
             </div>
-            <div className="flex items-center w-full p-3 px-1 gap-x-4">
+            <div className="flex items-center w-full p-3 px-1 border-t border-t-gray-600 gap-x-4">
               <LikeButton
                 totalLikes={post?.likes?.length || "0"}
                 isLiked={isLiked}
@@ -235,7 +244,7 @@ const PostDetailsDialog = ({
   );
 };
 
-const UserIconPic = ({ owner }: { owner: User }) => {
+export const UserIconPic = ({ owner }: { owner: User }) => {
   const navigate = useNavigate();
   return owner?.Photo ? (
     <img
@@ -249,15 +258,13 @@ const UserIconPic = ({ owner }: { owner: User }) => {
   );
 };
 
-const LikeButton = ({
+export const LikeButton = ({
   isLiked,
   onClick,
-  showLabel,
   totalLikes,
 }: {
   isLiked: boolean;
   onClick: () => void;
-  showLabel?: boolean;
   totalLikes: string | number;
 }) => (
   <div className="flex items-center gap-x-1">
@@ -265,11 +272,14 @@ const LikeButton = ({
       className={`w-6 h-6 font-normal cursor-pointer ${isLiked ? "text-red-600 fill-red-600" : ""}`}
       onClick={onClick}
     />
-    {totalLikes && (
-      <p className="mt-1.5 text-xs">
-        {totalLikes || "0"} {showLabel && "Likes"}
-      </p>
-    )}
+    {totalLikes && <p className="mt-1.5 text-xs font-medium">{totalLikes || "0"}</p>}
+  </div>
+);
+
+export const CommentButton = ({ onClick, totalComments }: { onClick: () => void; totalComments: string | number }) => (
+  <div className="flex items-center gap-x-1">
+    <MessageCircle className="w-6 h-6 cursor-pointer" onClick={onClick} />
+    {totalComments && <p className="mt-1.5 text-xs font-medium">{totalComments || "0"}</p>}
   </div>
 );
 
@@ -290,11 +300,11 @@ const CommentInput = ({
         type="text"
         placeholder="Add your comment . . ."
         value={value}
-        className="h-8 border shadow-none placeholder:text-xs"
+        className="h-8 border-none shadow-none placeholder:text-gray-400 focus-visible:ring-0 placeholder:text-xs"
         onChange={onChange}
       />
-      <Button type="submit" onClick={onSubmit} className="h-8">
-        Comment
+      <Button type="submit" onClick={onSubmit} className="h-8 text-gray-400">
+        Add
       </Button>
     </div>
   );
