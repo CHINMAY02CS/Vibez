@@ -10,7 +10,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["https://vibez-l5ul.vercel.app/", "http://localhost:5173"], // allow your Vercel frontend
+    origin: ["http://vibez-l5ul.vercel.app/", "http://localhost:5173"], // allow your Vercel frontend
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if you're using cookies or auth headers
   })
