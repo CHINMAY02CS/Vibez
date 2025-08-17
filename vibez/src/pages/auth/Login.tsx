@@ -21,7 +21,7 @@ export default function Login() {
   console.log(API_BASE, "API_BASE");
   function onSubmit(data: SignInFormData) {
     axios
-      .post(`${API_BASE}/signin`, {
+      .post(`${API_BASE}signin`, {
         email: data.email,
         password: data.password,
       })
