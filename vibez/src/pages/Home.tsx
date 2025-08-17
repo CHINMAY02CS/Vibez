@@ -261,7 +261,19 @@ const CommentInput = ({
 };
 
 const userPicClass = "w-8 h-8 rounded-full cursor-pointer";
-const userId = JSON.parse(localStorage.getItem("user") ?? "")._id;
+const getUserFromStorage = () => {
+  const stored = localStorage.getItem("user");
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch (err) {
+    console.error("Invalid user JSON in localStorage", err);
+    return null;
+  }
+};
+
+const user = getUserFromStorage();
+const userId = user?._id ?? null;
 
 import { Lens } from "@/components/ui/lens";
 import { motion } from "framer-motion";

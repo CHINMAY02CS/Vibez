@@ -8,7 +8,13 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://vibez-kgj8.vercel.app"], // allow your Vercel frontend
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if you're using cookies or auth headers
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

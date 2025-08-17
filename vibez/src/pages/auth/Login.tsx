@@ -16,9 +16,12 @@ export default function Login() {
     defaultValues: initialSignInDetails,
   });
   const navigate = useNavigate();
+
+  const API_BASE = import.meta.env.VITE_API_URL;
+  console.log(API_BASE, "API_BASE");
   function onSubmit(data: SignInFormData) {
     axios
-      .post("http://localhost:5000/signin", {
+      .post(`${API_BASE}/signin`, {
         email: data.email,
         password: data.password,
       })
