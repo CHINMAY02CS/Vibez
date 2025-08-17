@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Post, User } from "@/Interfaces";
 import { Bookmark, Heart, MessageCircle, UserCircle, X } from "lucide-react";
-import { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { AlertDialog, AlertDialogContent, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
 import { CommentDetails } from "@/interfaces/Profile";
 import { addCommentService, getAllPostsService, likePostService, unlikePostService } from "@/services/posts";
@@ -14,7 +13,6 @@ import clsx from "clsx";
 export default function Home() {
   const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [comments, setComments] = useState<{ [key: string]: string }>({});
-  const navigate = useNavigate();
   const [loadingData, setLoadingData] = useState<boolean | null>(true);
   const [postDialog, setPostDialog] = useState(false);
   const [activePost, setActivePost] = useState<null | Post>(null);
@@ -85,10 +83,6 @@ export default function Home() {
           <>
             {allPosts.length > 0 ? (
               allPosts.map((post) => {
-                // const postId = post?._id;
-                // const postOwner = post?.postedBy;
-                // const isLiked = post?.likes?.includes(userId) || false;
-                // const filteredComments = post?.comments?.filter((comment: CommentDetails) => comment.comment);
                 return (
                   <>
                     <LensDemo
@@ -97,42 +91,6 @@ export default function Home() {
                       handleOpenPost={handleOpenPost}
                       handleLikePost={handleLikePost}
                     />
-                    {/* <Card className="py-2 pb-4 border-none md:w-144 rounded-xl" key={post._id}>
-                    <CardHeader className="p-4">
-                      <CardTitle className="flex items-center gap-x-4">
-                        <UserIconPic owner={postOwner} />
-                        <p className="cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
-                          {postOwner?.name}
-                        </p>
-                      </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="flex items-center justify-center p-0 m-0 h-80">
-                      <img className="mx-4 rounded-lg h-80 w-144" src={post?.photo} alt="postedPic" />
-                    </CardContent>
-                    <CardFooter className="flex-col items-start w-full p-4 gap-y-2">
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex items-center gap-x-4">
-                          <LikeButton
-                            totalLikes={post?.likes?.length || "0"}
-                            isLiked={isLiked}
-                            onClick={() => handleLikePost(postId, isLiked)}
-                          />
-                          <CommentButton
-                            totalComments={filteredComments.length > 0 ? filteredComments.length : ""}
-                            onClick={() => handleOpenPost(postId)}
-                          />
-                        </div>
-                        <Bookmark className="cursor-pointer" />
-                      </div>
-                      <div className="flex items-center mt-2 text-sm gap-x-2">
-                        <p className="font-semibold cursor-pointer" onClick={() => navigate(`/user/${postOwner?._id}`)}>
-                          {postOwner?.name}
-                        </p>
-                        <p>{post?.body}</p>
-                      </div>
-                    </CardFooter>
-                  </Card> */}
                   </>
                 );
               })
@@ -171,7 +129,6 @@ const PostDetailsDialog = ({
   postDialog: boolean;
   setPostDialog: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const postOwner = post.postedBy;
   const postId = String(post._id);
   const comments = post.comments;
   const navigate = useNavigate();
@@ -183,13 +140,10 @@ const PostDetailsDialog = ({
       <AlertDialogContent className="gap-0 px-3 py-0 text-gray-400 border-none bg-gray-950 rounded-2xl md:w-136 lg:max-h-none">
         <div className="flex items-center justify-between py-4">
           <p className="w-full text-sm font-semibold text-center">Comments</p>
-          {/* <AlertDialogCancel className="p-0 m-0 border-none shadow-none max-w-max"> */}
           <X className="w-4 h-4 cursor-pointer hover:text-white" onClick={() => setPostDialog(false)} />{" "}
-          {/* </AlertDialogCancel> */}
         </div>
 
         <div className="grid items-start gap-x-4">
-          {/* <img className="h-80 w-120" src={post?.photo} /> */}
           <div>
             <div className="flex flex-col pb-2 mt-2 overflow-y-auto gap-y-3 lg:mt-0 max-h-90 md:max-h-144">
               {post.comments.length > 0 &&
@@ -222,10 +176,14 @@ const PostDetailsDialog = ({
                 onChange={(e) =>
                   setComments((prev) => ({
                     ...prev,
+
                     [postId]: e.target.value,
                   }))
                 }
-                onSubmit={() => addComment(comments[postId], postId)}
+                onSubmit={() => {
+                  // addComment(comments[postId], postId)
+                  console.log(comments);
+                }}
               />
             </div>
           </div>
@@ -291,7 +249,7 @@ const CommentInput = ({
       <Input
         type="text"
         placeholder="Add your comment . . ."
-        value={value}
+        // value={value}
         className="h-8 border-none shadow-none placeholder:text-gray-400 focus-visible:ring-0 placeholder:text-xs"
         onChange={onChange}
       />

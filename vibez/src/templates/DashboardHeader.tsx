@@ -1,5 +1,4 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import VibezLogo from "@/assets/VibezLogo.png";
 import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
